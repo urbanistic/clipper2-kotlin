@@ -18,7 +18,9 @@ import clipper2.core.Point64
 import clipper2.core.PointD
 import clipper2.core.Rect64
 import clipper2.engine.Clipper64
+import clipper2.engine.PolyTree64
 import kotlin.js.JsExport
+import kotlin.js.JsName
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.acos
@@ -189,7 +191,7 @@ class ClipperOffset constructor(
         }
     }
 
-    fun execute(delta: Double, solution: Paths64): Paths64 {
+    fun execute(delta: Double, solution: Paths64) {
         solution.clear()
         executeInternal(delta)
 
@@ -200,11 +202,28 @@ class ClipperOffset constructor(
 
         c.addSubjects(_solution)
         if (_groupList[0].pathsReversed) {
-            c.execute(ClipType.Union, FillRule.Negative, _solution)
+            c.execute(ClipType.Union, FillRule.Negative, solution)
         } else {
-            c.execute(ClipType.Union, FillRule.Positive, _solution)
+            c.execute(ClipType.Union, FillRule.Positive, solution)
         }
-        return _solution
+    }
+
+    @JsName("executePolyTree")
+    fun execute(delta: Double, solution: PolyTree64) {
+        solution.clear()
+        executeInternal(delta)
+
+        // clean up self-intersections ...
+        val c = Clipper64()
+        c.preserveCollinear = preserveCollinear
+        c.reverseSolution = reverseSolution != _groupList[0].pathsReversed
+
+        c.addSubjects(_solution)
+        if (_groupList[0].pathsReversed) {
+            c.execute(ClipType.Union, FillRule.Negative, solution)
+        } else {
+            c.execute(ClipType.Union, FillRule.Positive, solution)
+        }
     }
 
     private fun getPerpendic(pt: Point64, norm: PointD): Point64 {
