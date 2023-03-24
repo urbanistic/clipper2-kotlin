@@ -1193,16 +1193,10 @@ abstract class ClipperBase protected constructor() {
             } else if (absDx2 > 100) {
                 ip = getClosestPtOnSegment(ip, ae2.bot!!, ae2.top!!)
             } else {
-                if (ip.y < topY) {
-                    ip.y = topY
-                } else {
-                    ip.y = currentBotY
-                }
-                if (absDx1 < absDx2) {
-                    ip.x = topX(ae1, ip.y)
-                } else {
-                    ip.x = topX(ae2, topY)
-                }
+                if (ip.y < topY) { ip.y = topY }
+                else { ip.y = currentBotY }
+                if (absDx1 < absDx2) { ip.x = topX(ae1, ip.y) }
+                else { ip.x = topX(ae2, ip.y) }
             }
         }
         val node = IntersectNode(ip, ae1, ae2)
