@@ -7,8 +7,8 @@ import Clipper.sqr
 import Clipper.stripDuplicates
 import clipper2.core.ClipType
 import clipper2.core.FillRule
-import clipper2.core.InternalClipper.crossProduct
 import clipper2.core.InternalClipper.DEFAULT_ARC_TOLERANCE
+import clipper2.core.InternalClipper.crossProduct
 import clipper2.core.InternalClipper.dotProduct
 import clipper2.core.InternalClipper.isAlmostZero
 import clipper2.core.Path64
@@ -19,19 +19,18 @@ import clipper2.core.PointD
 import clipper2.core.Rect64
 import clipper2.engine.Clipper64
 import kotlin.js.JsExport
-import tangible.OutObject
-import tangible.RefObject
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.acos
 import kotlin.math.atan2
 import kotlin.math.ceil
 import kotlin.math.cos
-import kotlin.math.floor
 import kotlin.math.log10
 import kotlin.math.max
 import kotlin.math.sin
 import kotlin.math.sqrt
+import tangible.OutObject
+import tangible.RefObject
 
 
 /**
@@ -63,12 +62,14 @@ class ClipperOffset constructor(
 ) {
     private val _groupList: MutableList<Group> = mutableListOf<Group>()
     private val normals = PathD()
-    private val solution = Paths64()
+    private val _solution = Paths64()
     private var group_delta = 0.0 // *0.5 for open paths; *-1.0 for negative areas
     private var delta = 0.0
     private var abs_group_delta = 0.0
     private var mitLimSqr = 0.0
     private var stepsPerRad = 0.0
+    private var _stepSin = 0.0
+    private var _stepCos = 0.0
     private var joinType: JoinType? = null
     private var endType: EndType? = null
     var arcTolerance = 0.0
@@ -167,36 +168,43 @@ class ClipperOffset constructor(
         _groupList.add(Group(paths, joinType!!, endType!!))
     }
 
-    fun execute(delta: Double): Paths64 {
-        solution.clear()
+    fun executeInternal(delta: Double) {
+        _solution.clear()
         if (_groupList.isEmpty()) {
-            return solution
+            return
         }
+
         if (abs(delta) < 0.5) {
             for (group in _groupList) {
                 for (path in group.inPaths) {
-                    solution.add(path)
+                    _solution.add(path)
                 }
             }
-            return solution
+        } else {
+            this.delta = delta
+            mitLimSqr = if (miterLimit <= 1) 2.0 else 2.0 / sqr(miterLimit)
+            for (group in _groupList) {
+                doGroupOffset(group)
+            }
         }
-        this.delta = delta
-        mitLimSqr = if (miterLimit <= 1) 2.0 else 2.0 / sqr(miterLimit)
-        for (group in _groupList) {
-            doGroupOffset(group)
-        }
+    }
+
+    fun execute(delta: Double, solution: Paths64): Paths64 {
+        solution.clear()
+        executeInternal(delta)
 
         // clean up self-intersections ...
         val c = Clipper64()
         c.preserveCollinear = preserveCollinear
         c.reverseSolution = reverseSolution != _groupList[0].pathsReversed
-        c.addSubjects(solution)
+
+        c.addSubjects(_solution)
         if (_groupList[0].pathsReversed) {
-            c.execute(ClipType.Union, FillRule.Negative, solution)
+            c.execute(ClipType.Union, FillRule.Negative, _solution)
         } else {
-            c.execute(ClipType.Union, FillRule.Positive, solution)
+            c.execute(ClipType.Union, FillRule.Positive, _solution)
         }
-        return solution
+        return _solution
     }
 
     private fun getPerpendic(pt: Point64, norm: PointD): Point64 {
@@ -258,14 +266,14 @@ class ClipperOffset constructor(
         group.outPath.add(Point64(pt.x + offsetVec.x, pt.y + offsetVec.y))
         if (angle > -PI + 0.01) // avoid 180deg concave
         {
-            val steps: Int =
-                max(2, floor(stepsPerRad * abs(angle)).toInt())
-            val stepSin: Double = sin(angle / steps)
-            val stepCos: Double = cos(angle / steps)
+            //val steps: Int = max(2, ceil(stepsPerRad * abs(angle)).toInt())
+            val steps = ceil(stepsPerRad * abs(angle)).toInt()
+//            val stepSin: Double = sin(angle / steps)
+//            val stepCos: Double = cos(angle / steps)
             for (i in 1 until steps)  // ie 1 less than steps
             {
                 offsetVec =
-                    PointD(offsetVec.x * stepCos - stepSin * offsetVec.y, offsetVec.x * stepSin + offsetVec.y * stepCos)
+                    PointD(offsetVec.x * _stepCos - _stepSin * offsetVec.y, offsetVec.x * _stepSin + offsetVec.y * _stepCos)
                 group.outPath.add(Point64(pt.x + offsetVec.x, pt.y + offsetVec.y))
             }
         }
@@ -347,8 +355,8 @@ class ClipperOffset constructor(
             EndType.Butt -> {
                 group.outPath.add(
                     Point64(
-                        path[highI].x - normals[highI].x * group_delta,
-                        path[highI].y - normals[highI].y * group_delta
+                        path[0].x - normals[0].x * group_delta,
+                        path[0].y - normals[0].y * group_delta
                     )
                 )
                 group.outPath.add(getPerpendic(path[0], normals[0]))
@@ -403,9 +411,9 @@ class ClipperOffset constructor(
                 return
             }
             val area = area(group.inPaths[lowestIdx.argValue!!])
-            if (area == 0.0) {
-                return
-            }
+//            if (area == 0.0) { // this is probably unhelpful (#430)
+//                return
+//            }
             group.pathsReversed = area < 0
             if (group.pathsReversed) {
                 group_delta = -delta
@@ -426,9 +434,13 @@ class ClipperOffset constructor(
             // curve imprecision that's allowed is based on the size of the
             // offset (delta). Obviously very large offsets will almost always
             // require much less precision. See also offset_triginometry2.svg
-            val arcTol =
-                if (arcTolerance > 0.01) arcTolerance else log10(2 + abs_group_delta) * DEFAULT_ARC_TOLERANCE
-            stepsPerRad = 0.5 / acos(1 - arcTol / abs_group_delta)
+            val arcTol = if (arcTolerance > 0.01) arcTolerance else log10(2 + abs_group_delta) * DEFAULT_ARC_TOLERANCE
+            //stepsPerRad = 0.5 / acos(1 - arcTol / abs_group_delta)
+            val stepsPer360: Double = PI / acos(1 - arcTol / abs_group_delta)
+            _stepSin = sin(2 * PI / stepsPer360)
+            _stepCos = cos(2 * PI / stepsPer360)
+            if (group_delta < 0.0) _stepSin = -_stepSin
+            stepsPerRad = stepsPer360 / (2 * PI)
         }
         val isJoined = group.endType === EndType.Joined || group.endType === EndType.Polygon
         for (p in group.inPaths) {
@@ -467,7 +479,7 @@ class ClipperOffset constructor(
                 }
             }
         }
-        solution.addAll(group.outPaths)
+        _solution.addAll(group.outPaths)
         group.outPaths.clear()
     }
 

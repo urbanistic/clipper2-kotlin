@@ -23,8 +23,6 @@ import clipper2.engine.PolyTreeD
 import clipper2.offset.ClipperOffset
 import clipper2.offset.EndType
 import clipper2.offset.JoinType
-import kotlin.js.JsExport
-import kotlin.js.JsName
 import kotlin.math.PI
 import kotlin.math.ceil
 import kotlin.math.cos
@@ -226,7 +224,10 @@ object Clipper {
     ): Paths64 {
         val co = ClipperOffset(miterLimit)
         co.addPaths(paths, joinType, endType)
-        return co.execute(delta)
+        //return co.executeInternal(delta)
+        val solution = Paths64()
+        co.execute(delta, solution)
+        return solution
     }
 
     fun InflatePaths(
@@ -261,7 +262,8 @@ object Clipper {
         var tmp = scalePaths64(paths, scale)
         val co = ClipperOffset(miterLimit)
         co.addPaths(tmp, joinType, endType)
-        tmp = co.execute(delta * scale)
+        //tmp = co.executeInternal(delta * scale)
+        co.execute(delta * scale, tmp); // reuse 'tmp' to receive (scaled) solution
         return scalePathsD(tmp, 1 / scale)
     }
 
