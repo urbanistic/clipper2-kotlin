@@ -224,7 +224,6 @@ object Clipper {
     ): Paths64 {
         val co = ClipperOffset(miterLimit)
         co.addPaths(paths, joinType, endType)
-        //return co.executeInternal(delta)
         val solution = Paths64()
         co.execute(delta, solution)
         return solution
@@ -259,15 +258,14 @@ object Clipper {
     ): PathsD {
         InternalClipper.checkPrecision(precision)
         val scale: Double = 10.0.pow(precision.toDouble())
-        var tmp = scalePaths64(paths, scale)
+        val tmp = scalePaths64(paths, scale)
         val co = ClipperOffset(miterLimit)
         co.addPaths(tmp, joinType, endType)
-        //tmp = co.executeInternal(delta * scale)
-        co.execute(delta * scale, tmp); // reuse 'tmp' to receive (scaled) solution
+        co.execute(delta * scale, tmp) // reuse 'tmp' to receive (scaled) solution
         return scalePathsD(tmp, 1 / scale)
     }
 
-    fun rectClip(
+    fun executeRectClip(
         rect: Rect64,
         paths: Paths64,
         convexOnly: Boolean = false
@@ -279,7 +277,7 @@ object Clipper {
         return rc.execute(paths, convexOnly)
     }
 
-    fun rectClip(
+    fun executeRectClip(
         rect: Rect64,
         path: Path64,
         convexOnly: Boolean = false
@@ -289,10 +287,10 @@ object Clipper {
         }
         val tmp = Paths64()
         tmp.add(path)
-        return rectClip(rect, tmp, convexOnly)
+        return executeRectClip(rect, tmp, convexOnly)
     }
 
-    fun rectClip(
+    fun executeRectClip(
         rect: RectD,
         paths: PathsD,
         precision: Int = 2,
@@ -310,7 +308,7 @@ object Clipper {
         return scalePathsD(tmpPath, 1 / scale)
     }
 
-    fun rectClip(
+    fun executeRectClip(
         rect: RectD,
         path: PathD,
         precision: Int = 2,
@@ -321,10 +319,10 @@ object Clipper {
         }
         val tmp = PathsD()
         tmp.add(path)
-        return rectClip(rect, tmp, precision, convexOnly)
+        return executeRectClip(rect, tmp, precision, convexOnly)
     }
 
-    fun rectClipLines(
+    fun executeRectClipLines(
         rect: Rect64,
         paths: Paths64
     ): Paths64 {
@@ -335,7 +333,7 @@ object Clipper {
         return rc.execute(paths)
     }
 
-    fun rectClipLines(
+    fun executeRectClipLines(
         rect: Rect64,
         path: Path64
     ): Paths64 {
@@ -344,10 +342,10 @@ object Clipper {
         }
         val tmp = Paths64()
         tmp.add(path)
-        return rectClipLines(rect, tmp)
+        return executeRectClipLines(rect, tmp)
     }
 
-    fun rectClipLines(
+    fun executeRectClipLines(
         rect: RectD,
         paths: PathsD,
         precision: Int = 2
@@ -364,7 +362,7 @@ object Clipper {
         return scalePathsD(tmpPath, 1 / scale)
     }
 
-    fun rectClipLines(
+    fun executeRectClipLines(
         rect: RectD,
         path: PathD,
         precision: Int = 2
@@ -374,7 +372,7 @@ object Clipper {
         }
         val tmp = PathsD()
         tmp.add(path)
-        return rectClipLines(rect, tmp, precision)
+        return executeRectClipLines(rect, tmp, precision)
     }
 
     fun MinkowskiSum(pattern: Path64?, path: Path64?, isClosed: Boolean): Paths64 {

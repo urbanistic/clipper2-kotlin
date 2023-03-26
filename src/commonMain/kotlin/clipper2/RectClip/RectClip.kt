@@ -17,13 +17,13 @@ import tangible.OutObject
 import tangible.RefObject
 
 /**
- * RectClip intersects subject polygons with the specified rectangular clipping
+ * ExecuteRectClip intersects subject polygons with the specified rectangular clipping
  * region. Polygons may be simple or complex (self-intersecting).
  *
  *
  * This function is extremely fast when compared to the Library's general
  * purpose Intersect clipper. Where Intersect has roughly O(n³) performance,
- * RectClip has O(n) performance.
+ * ExecuteRectClip has O(n) performance.
  *
  * @since 1.0.6
  */
@@ -73,7 +73,7 @@ open class RectClip(rect: Rect64) {
             result.next = result
         } else {
             currIdx--
-            val prevOp: RectClip.OutPt2? = results[currIdx]
+            val prevOp: OutPt2? = results[currIdx]
             if (prevOp!!.pt === pt) {
                 return prevOp
             }
@@ -387,8 +387,8 @@ open class RectClip(rect: Rect64) {
 
     private fun checkEdges() {
         for (i in results.indices) {
-            var op: RectClip.OutPt2? = results[i]
-            var op2: RectClip.OutPt2? = op
+            var op: OutPt2? = results[i]
+            var op2: OutPt2? = op
             if (op == null) {
                 continue
             }
@@ -596,7 +596,7 @@ open class RectClip(rect: Rect64) {
         if (op == null || op.prev === op.next) {
             return result
         }
-        var op2: RectClip.OutPt2? = op.next
+        var op2: OutPt2? = op.next
         while (op2 != null && op2 !== op) {
             if (crossProduct(op2.prev!!.pt, op2.pt, op2.next!!.pt) == 0.0) {
                 op = op2.prev
@@ -726,7 +726,7 @@ open class RectClip(rect: Rect64) {
                 return
             }
             for (i in op.edge!!.indices) {
-                val op2: RectClip.OutPt2? = op.edge!![i]
+                val op2: OutPt2? = op.edge!![i]
                 if (op2 === op) {
                     op.edge!![i] = null
                     break

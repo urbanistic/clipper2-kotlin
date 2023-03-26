@@ -9,13 +9,13 @@ import tangible.RefObject
 
 
 /**
- * RectClipLines intersects subject open paths (polylines) with the specified
+ * ExecuteRectClipLines intersects subject open paths (polylines) with the specified
  * rectangular clipping region.
  *
  *
  * This function is extremely fast when compared to the Library's general
  * purpose Intersect clipper. Where Intersect has roughly O(n³) performance,
- * RectClipLines has O(n) performance.
+ * ExecuteRectClipLines has O(n) performance.
  *
  * @since 1.0.6
  */

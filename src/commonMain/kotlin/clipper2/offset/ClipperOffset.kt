@@ -28,7 +28,6 @@ import kotlin.math.atan2
 import kotlin.math.ceil
 import kotlin.math.cos
 import kotlin.math.log10
-import kotlin.math.max
 import kotlin.math.sin
 import kotlin.math.sqrt
 import tangible.OutObject
@@ -285,14 +284,13 @@ class ClipperOffset constructor(
         group.outPath.add(Point64(pt.x + offsetVec.x, pt.y + offsetVec.y))
         if (angle > -PI + 0.01) // avoid 180deg concave
         {
-            //val steps: Int = max(2, ceil(stepsPerRad * abs(angle)).toInt())
             val steps = ceil(stepsPerRad * abs(angle)).toInt()
-//            val stepSin: Double = sin(angle / steps)
-//            val stepCos: Double = cos(angle / steps)
             for (i in 1 until steps)  // ie 1 less than steps
             {
-                offsetVec =
-                    PointD(offsetVec.x * _stepCos - _stepSin * offsetVec.y, offsetVec.x * _stepSin + offsetVec.y * _stepCos)
+                offsetVec = PointD(
+                    offsetVec.x * _stepCos - _stepSin * offsetVec.y,
+                    offsetVec.x * _stepSin + offsetVec.y * _stepCos
+                )
                 group.outPath.add(Point64(pt.x + offsetVec.x, pt.y + offsetVec.y))
             }
         }
@@ -321,12 +319,12 @@ class ClipperOffset constructor(
         } else if (sinA < -1.0) {
             sinA = -1.0
         }
-        if (almostZero(cosA - 1, 0.01)) // almost straight
-        {
+        if (cosA > 0.99) { // almost straight - less than 8 degrees
             group.outPath.add(getPerpendic(path[j], normals[k.argValue!!]))
-            group.outPath.add(getPerpendic(path[j], normals[j])) // (#418)
-        } else if (!almostZero(cosA + 1, 0.01) && sinA * group_delta < 0) // is concave
-        {
+            if (cosA < 0.9998) { // greater than 1 degree (#424)
+                group.outPath.add(getPerpendic(path[j], normals[j])) // (#418)
+            }
+        } else if (cosA > -0.99 && (sinA * group_delta < 0)) { // is concave
             group.outPath.add(getPerpendic(path[j], normals[k.argValue!!]))
             // this extra point is the only (simple) way to ensure that
             // path reversals are fully cleaned with the trailing clipper
