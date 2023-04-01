@@ -1243,16 +1243,7 @@ object Clipper {
         }
         return result
     }
-    /**
-     * This function removes the vertices between adjacent collinear segments. It
-     * will also remove duplicate vertices (adjacent vertices with identical
-     * coordinates).
-     *
-     *
-     * Note: Duplicate vertices will be removed automatically from clipping
-     * solutions, but not collinear edges unless the Clipper object's
-     * PreserveCollinear property had been disabled.
-     */
+
     /**
      * This function removes the vertices between adjacent collinear segments. It
      * will also remove duplicate vertices (adjacent vertices with identical
@@ -1308,20 +1299,7 @@ object Clipper {
         }
         return result
     }
-    /**
-     * This function removes the vertices between adjacent collinear segments. It
-     * will also remove duplicate vertices (adjacent vertices with identical
-     * coordinates).
-     *
-     *
-     * With floating point paths, the precision parameter indicates the decimal
-     * precision that's required when determining collinearity.
-     *
-     *
-     * Note: Duplicate vertices will be removed automatically from clipping
-     * solutions, but not collinear edges unless the Clipper object's
-     * PreserveCollinear property had been disabled.
-     */
+
     /**
      * This function removes the vertices between adjacent collinear segments. It
      * will also remove duplicate vertices (adjacent vertices with identical
