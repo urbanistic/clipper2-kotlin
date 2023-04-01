@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 import clipper2.Minkowski
 import clipper2.RectClip.RectClip
 import clipper2.RectClip.RectClipLines
