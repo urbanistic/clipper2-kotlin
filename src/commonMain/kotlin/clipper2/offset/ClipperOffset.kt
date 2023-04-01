@@ -55,7 +55,7 @@ import tangible.RefObject
  * (including EndType.Join), you'll simply inflate the polygon's outline.
  */
 @JsExport
-class ClipperOffset constructor(
+class ClipperOffset(
     miterLimit: Double = 2.0,
     arcTolerance: Double = 0.25,
     preserveCollinear: Boolean = false,
@@ -148,6 +148,7 @@ class ClipperOffset constructor(
         this.reverseSolution = reverseSolution
     }
 
+    @Suppress("unused")
     fun clear() {
         _groupList.clear()
     }
