@@ -34,47 +34,47 @@ object Clipper {
     val InvalidRect64 = Rect64(false)
     val InvalidRectD = RectD(false)
 
-    fun Intersect(subject: Paths64, clip: Paths64, fillRule: FillRule): Paths64 {
-        return BooleanOp(ClipType.Intersection, subject, clip, fillRule)
+    fun intersect(subject: Paths64, clip: Paths64, fillRule: FillRule): Paths64 {
+        return booleanOp(ClipType.Intersection, subject, clip, fillRule)
     }
 
-    fun Intersect(subject: PathsD, clip: PathsD, fillRule: FillRule, precision: Int = 2): PathsD {
-        return BooleanOp(ClipType.Intersection, subject, clip, fillRule, precision)
+    fun intersect(subject: PathsD, clip: PathsD, fillRule: FillRule, precision: Int = 2): PathsD {
+        return booleanOp(ClipType.Intersection, subject, clip, fillRule, precision)
     }
 
-    fun Union(subject: Paths64, fillRule: FillRule): Paths64 {
-        return BooleanOp(ClipType.Union, subject, null, fillRule)
+    fun union(subject: Paths64, fillRule: FillRule): Paths64 {
+        return booleanOp(ClipType.Union, subject, null, fillRule)
     }
 
-    fun Union(subject: Paths64, clip: Paths64? = null, fillRule: FillRule): Paths64 {
-        return BooleanOp(ClipType.Union, subject, clip, fillRule)
+    fun union(subject: Paths64, clip: Paths64? = null, fillRule: FillRule): Paths64 {
+        return booleanOp(ClipType.Union, subject, clip, fillRule)
     }
 
-    fun Union(subject: PathsD, fillRule: FillRule): PathsD {
-        return BooleanOp(ClipType.Union, subject, null, fillRule)
+    fun union(subject: PathsD, fillRule: FillRule): PathsD {
+        return booleanOp(ClipType.Union, subject, null, fillRule)
     }
 
-    fun Union(subject: PathsD, clip: PathsD? = null, fillRule: FillRule, precision: Int = 2): PathsD {
-        return BooleanOp(ClipType.Union, subject, clip, fillRule, precision)
+    fun union(subject: PathsD, clip: PathsD? = null, fillRule: FillRule, precision: Int = 2): PathsD {
+        return booleanOp(ClipType.Union, subject, clip, fillRule, precision)
     }
 
-    fun Difference(subject: Paths64, clip: Paths64, fillRule: FillRule): Paths64 {
-        return BooleanOp(ClipType.Difference, subject, clip, fillRule)
+    fun difference(subject: Paths64, clip: Paths64, fillRule: FillRule): Paths64 {
+        return booleanOp(ClipType.Difference, subject, clip, fillRule)
     }
 
-    fun Difference(subject: PathsD, clip: PathsD, fillRule: FillRule, precision: Int = 2): PathsD {
-        return BooleanOp(ClipType.Difference, subject, clip, fillRule, precision)
+    fun difference(subject: PathsD, clip: PathsD, fillRule: FillRule, precision: Int = 2): PathsD {
+        return booleanOp(ClipType.Difference, subject, clip, fillRule, precision)
     }
 
-    fun Xor(subject: Paths64, clip: Paths64, fillRule: FillRule): Paths64 {
-        return BooleanOp(ClipType.Xor, subject, clip, fillRule)
+    fun xor(subject: Paths64, clip: Paths64, fillRule: FillRule): Paths64 {
+        return booleanOp(ClipType.Xor, subject, clip, fillRule)
     }
 
-    fun Xor(subject: PathsD, clip: PathsD, fillRule: FillRule, precision: Int = 2): PathsD {
-        return BooleanOp(ClipType.Xor, subject, clip, fillRule, precision)
+    fun xor(subject: PathsD, clip: PathsD, fillRule: FillRule, precision: Int = 2): PathsD {
+        return booleanOp(ClipType.Xor, subject, clip, fillRule, precision)
     }
 
-    fun BooleanOp(
+    fun booleanOp(
         clipType: ClipType,
         subject: Paths64?,
         clip: Paths64?,
@@ -93,7 +93,7 @@ object Clipper {
         return solution
     }
 
-    fun BooleanOp(
+    fun booleanOp(
         clipType: ClipType,
         subject: Paths64?,
         clip: Paths64?,
@@ -111,7 +111,7 @@ object Clipper {
         c.execute(clipType, fillRule, polytree)
     }
 
-    fun BooleanOp(
+    fun booleanOp(
         clipType: ClipType,
         subject: PathsD,
         clip: PathsD?,
@@ -128,17 +128,17 @@ object Clipper {
         return solution
     }
 
-    fun BooleanOp(
+    fun booleanOp(
         clipType: ClipType,
         subject: PathsD?,
         clip: PathsD?,
         polytree: PolyTreeD,
         fillRule: FillRule
     ) {
-        BooleanOp(clipType, subject, clip, polytree, fillRule, 2)
+        booleanOp(clipType, subject, clip, polytree, fillRule, 2)
     }
 
-    fun BooleanOp(
+    fun booleanOp(
         clipType: ClipType,
         subject: PathsD?,
         clip: PathsD?,
@@ -157,13 +157,13 @@ object Clipper {
         c.execute(clipType, fillRule, polytree)
     }
 
-    fun InflatePaths(
+    fun inflatePaths(
         paths: Paths64,
         delta: Double,
         joinType: JoinType,
         endType: EndType
     ): Paths64 {
-        return InflatePaths(paths, delta, joinType, endType, 2.0)
+        return inflatePaths(paths, delta, joinType, endType, 2.0)
     }
 
     /**
@@ -215,7 +215,7 @@ object Clipper {
      * long 'spikes'.
      * @return
      */
-    fun InflatePaths(
+    fun inflatePaths(
         paths: Paths64,
         delta: Double,
         joinType: JoinType,
@@ -229,26 +229,26 @@ object Clipper {
         return solution
     }
 
-    fun InflatePaths(
+    fun inflatePaths(
         paths: PathsD,
         delta: Double,
         joinType: JoinType,
         endType: EndType
     ): PathsD {
-        return InflatePaths(paths, delta, joinType, endType, 2.0, 2)
+        return inflatePaths(paths, delta, joinType, endType, 2.0, 2)
     }
 
-    fun InflatePaths(
+    fun inflatePaths(
         paths: PathsD,
         delta: Double,
         joinType: JoinType,
         endType: EndType,
         miterLimit: Double
     ): PathsD {
-        return InflatePaths(paths, delta, joinType, endType, miterLimit, 2)
+        return inflatePaths(paths, delta, joinType, endType, miterLimit, 2)
     }
 
-    fun InflatePaths(
+    fun inflatePaths(
         paths: PathsD,
         delta: Double,
         joinType: JoinType,
@@ -375,19 +375,19 @@ object Clipper {
         return executeRectClipLines(rect, tmp, precision)
     }
 
-    fun MinkowskiSum(pattern: Path64?, path: Path64?, isClosed: Boolean): Paths64 {
+    fun minkowskiSum(pattern: Path64?, path: Path64?, isClosed: Boolean): Paths64 {
         return Minkowski.sum(pattern!!, path!!, isClosed)
     }
 
-    fun MinkowskiSum(pattern: PathD, path: PathD, isClosed: Boolean): PathsD {
+    fun minkowskiSum(pattern: PathD, path: PathD, isClosed: Boolean): PathsD {
         return Minkowski.sum(pattern, path, isClosed)
     }
 
-    fun MinkowskiDiff(pattern: Path64, path: Path64, isClosed: Boolean): Paths64 {
+    fun minkowskiDiff(pattern: Path64, path: Path64, isClosed: Boolean): Paths64 {
         return Minkowski.diff(pattern, path, isClosed)
     }
 
-    fun MinkowskiDiff(pattern: PathD, path: PathD, isClosed: Boolean): PathsD {
+    fun minkowskiDiff(pattern: PathD, path: PathD, isClosed: Boolean): PathsD {
         return Minkowski.diff(pattern, path, isClosed)
     }
 

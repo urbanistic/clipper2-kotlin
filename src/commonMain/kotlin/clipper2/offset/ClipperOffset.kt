@@ -43,7 +43,7 @@ import tangible.RefObject
  * (inflating/deflating) both open and closed paths using a number of different
  * join types and end types. The library user will rarely need to access this
  * unit directly since it will generally be easier to use the
- * [ InflatePaths()][Clipper.InflatePaths] function when doing polygon offsetting.
+ * [ InflatePaths()][Clipper.inflatePaths] function when doing polygon offsetting.
  *
  *
  * Caution: Offsetting self-intersecting polygons may produce unexpected
