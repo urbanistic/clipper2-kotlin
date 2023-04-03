@@ -7,6 +7,13 @@ fun MutableList<Long>.addIfMissingAndSort(element: Long) {
     }
 }
 
+fun MutableList<Int>.addIfMissingAndSort(element: Int) {
+    if(!this.contains(element)){
+        this.add(element)
+        this.sort()
+    }
+}
+
 fun <T : Any> MutableList<T>.pollLast(): T {
     val result = this.last()
     this.remove(result)

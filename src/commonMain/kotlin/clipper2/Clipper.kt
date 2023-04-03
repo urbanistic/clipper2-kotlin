@@ -3,18 +3,7 @@
 import clipper2.Minkowski
 import clipper2.RectClip.RectClip
 import clipper2.RectClip.RectClipLines
-import clipper2.core.ClipType
-import clipper2.core.FillRule
-import clipper2.core.InternalClipper
-import clipper2.core.Path64
-import clipper2.core.PathD
-import clipper2.core.PathType
-import clipper2.core.Paths64
-import clipper2.core.PathsD
-import clipper2.core.Point64
-import clipper2.core.PointD
-import clipper2.core.Rect64
-import clipper2.core.RectD
+import clipper2.core.*
 import clipper2.engine.Clipper64
 import clipper2.engine.ClipperD
 import clipper2.engine.PointInPolygonResult
@@ -34,6 +23,7 @@ import kotlin.math.sqrt
 
 object Clipper {
     val InvalidRect64 = Rect64(false)
+    val InvalidRect32 = Rect32(false)
     val InvalidRectD = RectD(false)
 
     fun intersect(subject: Paths64, clip: Paths64, fillRule: FillRule): Paths64 {
@@ -425,10 +415,53 @@ object Clipper {
      * clockwise, then the area will be positive and conversely, if winding is
      * counter-clockwise, then the area will be negative.
      *
+     * @param path
+     * @return
+     */
+    fun area(path: Path32): Double {
+        // https://en.wikipedia.org/wiki/Shoelace_formula
+        var a = 0.0
+        val cnt = path.size
+        if (cnt < 3) {
+            return 0.0
+        }
+        var prevPt = path[cnt - 1]
+        for (pt in path) {
+            a += (prevPt.y + pt.y).toDouble() * (prevPt.x - pt.x)
+            prevPt = pt
+        }
+        return a * 0.5
+    }
+
+    /**
+     * Returns the area of the supplied polygon. It's assumed that the path is
+     * closed and does not self-intersect. Depending on the path's winding
+     * orientation, this value may be positive or negative. If the winding is
+     * clockwise, then the area will be positive and conversely, if winding is
+     * counter-clockwise, then the area will be negative.
+     *
      * @param paths
      * @return
      */
     fun area(paths: Paths64): Double {
+        var a = 0.0
+        for (path in paths) {
+            a += area(path)
+        }
+        return a
+    }
+
+    /**
+     * Returns the area of the supplied polygon. It's assumed that the path is
+     * closed and does not self-intersect. Depending on the path's winding
+     * orientation, this value may be positive or negative. If the winding is
+     * clockwise, then the area will be positive and conversely, if winding is
+     * counter-clockwise, then the area will be negative.
+     *
+     * @param paths
+     * @return
+     */
+    fun area(paths: Paths32): Double {
         var a = 0.0
         for (path in paths) {
             a += area(path)
@@ -473,6 +506,24 @@ object Clipper {
      * path segments will commonly wind in opposite directions to other segments.
      */
     fun isPositive(poly: Path64): Boolean {
+        return area(poly) >= 0
+    }
+
+    /**
+     * This function assesses the winding orientation of closed paths.
+     *
+     *
+     * Positive winding paths will be oriented in an anti-clockwise direction in
+     * Cartesian coordinates (where coordinate values increase when heading
+     * rightward and upward). Nevertheless, it's common for graphics libraries to use
+     * inverted Y-axes (where Y values decrease heading upward). In these libraries,
+     * paths with Positive winding will be oriented clockwise.
+     *
+     *
+     * Note: Self-intersecting polygons have indeterminate orientation since some
+     * path segments will commonly wind in opposite directions to other segments.
+     */
+    fun isPositive(poly: Path32): Boolean {
         return area(poly) >= 0
     }
 
@@ -901,6 +952,16 @@ object Clipper {
     }
 
     fun perpendicDistFromLineSqrd(pt: Point64, line1: Point64, line2: Point64): Double {
+        val a = pt.x.toDouble() - line1.x
+        val b = pt.y.toDouble() - line1.y
+        val c = line2.x.toDouble() - line1.x
+        val d = line2.y.toDouble() - line1.y
+        return if (c == 0.0 && d == 0.0) {
+            0.0
+        } else sqr(a * d - c * b) / (c * c + d * d)
+    }
+
+    fun perpendicDistFromLineSqrd(pt: Point32, line1: Point32, line2: Point32): Double {
         val a = pt.x.toDouble() - line1.x
         val b = pt.y.toDouble() - line1.y
         val c = line2.x.toDouble() - line1.x
