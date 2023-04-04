@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package clipper2
 
 import clipper2.clipper32.core.Path32
@@ -210,21 +212,23 @@ object ClipperFileIO {
             } else if (s.indexOf("CLIPS") == 0) {
                 GetIdx = 3
                 continue
-            } else {
-// 				continue;
             }
+//            else {
+// 				continue;
+//            }
             val paths = Path32FromStr(s) // 0 or 1 path
             if (paths.isEmpty()) {
-                if (GetIdx == 3) {
+//                if (GetIdx == 3) {
 // 					return result;
-                }
+//                }
                 if (s.indexOf("SUBJECTS_OPEN") == 0) {
                     GetIdx = 2
                 } else if (s.indexOf("CLIPS") == 0) {
                     GetIdx = 3
-                } else {
-// 					return result;
                 }
+//                else {
+// 					return result;
+//                }
                 continue
             }
             if (GetIdx == 1 && !paths[0].isEmpty()) {

@@ -236,11 +236,7 @@ abstract class ClipperBase protected constructor() {
 
     protected fun reset() {
         if (!isSortedMinimaList) {
-            minimaList.sortWith(
-                Comparator<LocalMinima> { locMin1: LocalMinima, locMin2: LocalMinima ->
-                    locMin2.vertex!!.pt.y.compareTo(locMin1.vertex!!.pt.y)
-                }
-            )
+            minimaList.sortWith { locMin1: LocalMinima, locMin2: LocalMinima -> locMin2.vertex!!.pt.y.compareTo(locMin1.vertex!!.pt.y) }
             isSortedMinimaList = true
         }
         for (i in minimaList.indices.reversed()) {
@@ -304,7 +300,7 @@ abstract class ClipperBase protected constructor() {
                     prevV = currV
                 }
             }
-            if (prevV == null || prevV.prev == null) {
+            if (prevV?.prev == null) {
                 continue
             }
             if (!isOpen && v0!!.pt.opEquals(prevV.pt)) {
@@ -699,12 +695,12 @@ abstract class ClipperBase protected constructor() {
             leftBound!!.isLeftBound = true
             insertLeftEdge(leftBound)
 
-            if (isOpen(leftBound)) {
+            contributing = if (isOpen(leftBound)) {
                 setWindCountForOpenPathEdge(leftBound)
-                contributing = isContributingOpen(leftBound)
+                isContributingOpen(leftBound)
             } else {
                 setWindCountForClosedPathEdge(leftBound)
-                contributing = isContributingClosed(leftBound)
+                isContributingClosed(leftBound)
             }
 
             if (rightBound != null) {
