@@ -1,13 +1,18 @@
-package clipper2.engine
+package clipper2.clipper32.engine
 
 import Clipper.perpendicDistFromLineSqrd
+import clipper2.clipper32.core.Path32
+import clipper2.clipper32.core.Paths32
+import clipper2.clipper32.core.Point32
+import clipper2.clipper32.core.Rect32
 import clipper2.core.*
-import clipper2.core.InternalClipper32.crossProduct
-import clipper2.core.InternalClipper32.dotProduct
-import clipper2.core.InternalClipper32.getClosestPtOnSegment
-import clipper2.core.InternalClipper32.getIntersectPoint
-import clipper2.core.InternalClipper32.getIntersectPt
-import clipper2.core.InternalClipper32.segsIntersect
+import clipper2.clipper32.core.InternalClipper32.crossProduct
+import clipper2.clipper32.core.InternalClipper32.dotProduct
+import clipper2.clipper32.core.InternalClipper32.getClosestPtOnSegment
+import clipper2.clipper32.core.InternalClipper32.getIntersectPoint
+import clipper2.clipper32.core.InternalClipper32.getIntersectPt
+import clipper2.clipper32.core.InternalClipper32.segsIntersect
+import clipper2.engine.*
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import tangible.OutObject
@@ -1376,7 +1381,7 @@ abstract class ClipperBase32 protected constructor() {
         var pt: Point32
         val horzIsOpen = isOpen(horz)
         val Y = horz!!.bot!!.y
-        val vertex_max: ClipperBase32.Vertex? =
+        val vertex_max: Vertex? =
             if (horzIsOpen) getCurrYMaximaVertex_Open(horz) else getCurrYMaximaVertex(horz)
 
         // remove 180 deg.spikes and also simplify
@@ -1395,11 +1400,11 @@ abstract class ClipperBase32 protected constructor() {
             val op = addOutPt(horz, Point32(horz.curX, Y))
             addToHorzSegList(op)
         }
-        var currOutrec: ClipperBase32.OutRec? = horz.outrec
+        var currOutrec: OutRec? = horz.outrec
         while (true) {
 
             // loops through consec. horizontal edges (if open)
-            var ae: ClipperBase32.Active? = if (isLeftToRight) horz.nextInAEL else horz.prevInAEL
+            var ae: Active? = if (isLeftToRight) horz.nextInAEL else horz.prevInAEL
             while (ae != null) {
                 if (ae.vertexTop === vertex_max) {
                     // do this first!!
@@ -1604,7 +1609,7 @@ abstract class ClipperBase32 protected constructor() {
     }
 
     private fun checkJoinLeft(e: Active?, pt: Point32?, checkCurrX: Boolean = false) {
-        val prev: ClipperBase32.Active? = e!!.prevInAEL
+        val prev: Active? = e!!.prevInAEL
         if (prev == null || isOpen(e) || isOpen(prev) || !isHotEdge(e) || !isHotEdge(prev) || pt!!.y < e.top!!.y + 2 || pt.y < prev.top!!.y + 2) {
             return
         }
@@ -1630,7 +1635,7 @@ abstract class ClipperBase32 protected constructor() {
     }
 
     private fun checkJoinRight(e: Active?, pt: Point32?, checkCurrX: Boolean = false) {
-        val next: ClipperBase32.Active? = e!!.nextInAEL
+        val next: Active? = e!!.nextInAEL
         if (isOpen(e) || !isHotEdge(e) || isJoined(e) || next == null || isOpen(next) || !isHotEdge(next) || pt!!.y < e.top!!.y + 2 || pt.y < next.top!!.y + 2) {
             return
         }
@@ -2132,7 +2137,7 @@ abstract class ClipperBase32 protected constructor() {
         }
 
         private fun getCurrYMaximaVertex_Open(ae: Active): Vertex? {
-            var result: ClipperBase32.Vertex? = ae.vertexTop
+            var result: Vertex? = ae.vertexTop
             if (ae.windDx > 0) {
                 while (result!!.next!!.pt.y == result.pt.y && result.flags and (VertexFlags.OpenEnd or VertexFlags.LocalMax) == VertexFlags.None) {
                     result = result.next
@@ -2204,7 +2209,7 @@ abstract class ClipperBase32 protected constructor() {
             }
 
             // make sure that outrec isn't an owner of newOwner
-            var tmp: ClipperBase32.OutRec? = newOwner
+            var tmp: OutRec? = newOwner
             while (tmp != null && tmp !== outrec) {
                 tmp = tmp.owner
             }
@@ -2408,10 +2413,10 @@ abstract class ClipperBase32 protected constructor() {
         }
 
         private fun resetHorzDirection(
-            horz: Active,
-            vertexMax: Vertex?,
-            leftX: OutObject<Int>,
-            rightX: OutObject<Int>
+                horz: Active,
+                vertexMax: Vertex?,
+                leftX: OutObject<Int>,
+                rightX: OutObject<Int>
         ): Boolean {
             if (horz.bot!!.x == horz.top!!.x) {
                 // the horizontal edge is going nowhere ...
@@ -2652,7 +2657,7 @@ abstract class ClipperBase32 protected constructor() {
         }
 
         private fun disposeOutPt(op: OutPt): OutPt? {
-            val result: ClipperBase32.OutPt? = if (op.next === op) null else op.next
+            val result: OutPt? = if (op.next === op) null else op.next
             op.prev!!.next = op.next
             op.next.prev = op.prev
             // op == null;

@@ -1,4 +1,4 @@
-package clipper2.engine
+package clipper2.clipper32.engine
 
 class NodeIterator32(var ppbList: List<PolyPathBase32>) : MutableIterator<PolyPathBase32> {
 

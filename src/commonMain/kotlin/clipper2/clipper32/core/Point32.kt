@@ -1,5 +1,6 @@
-package clipper2.core
+package clipper2.clipper32.core
 
+import clipper2.core.PointD
 import kotlin.js.JsExport
 import kotlin.js.JsName
 import kotlin.math.roundToInt

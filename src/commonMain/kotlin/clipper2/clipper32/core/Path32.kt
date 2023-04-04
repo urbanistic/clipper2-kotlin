@@ -1,5 +1,6 @@
-package clipper2.core
+package clipper2.clipper32.core
 
+import clipper2.core.PathD
 import kotlin.js.JsExport
 
 /**
@@ -28,13 +29,13 @@ public class Path32 : MutableList<Point32> by mutableListOf() {
     }
 
     companion object{
-        public fun of(vararg elements: Point32): Path32{
+        public fun of(vararg elements: Point32): Path32 {
             val path = Path32()
             path.addAll(elements)
             return path
             // return mutableListOf<Point32>(*elements) as Path32
         }
-        public fun ofPathD(path: PathD): Path32{
+        public fun ofPathD(path: PathD): Path32 {
             val result = Path32() //path.size
             for (pt in path) {
                 result.add(Point32(pt))

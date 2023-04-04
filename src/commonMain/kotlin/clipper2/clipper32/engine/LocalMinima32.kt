@@ -1,4 +1,4 @@
-package clipper2.engine
+package clipper2.clipper32.engine
 
 import clipper2.core.PathType
 

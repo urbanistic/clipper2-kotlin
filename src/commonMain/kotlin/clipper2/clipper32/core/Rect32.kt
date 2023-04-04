@@ -1,4 +1,4 @@
-package clipper2.core
+package clipper2.clipper32.core
 
 import kotlin.js.JsExport
 import kotlin.js.JsName
@@ -48,10 +48,10 @@ public class Rect32(var left: Int, var top: Int, var right: Int, var bottom: Int
 
     fun asPath(): Path32 {
         return Path32.of(
-            Point32(left, top),
-            Point32(right, top),
-            Point32(right, bottom),
-            Point32(left, bottom)
+                Point32(left, top),
+                Point32(right, top),
+                Point32(right, bottom),
+                Point32(left, bottom)
         )
     }
 

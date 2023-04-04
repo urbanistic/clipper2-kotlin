@@ -1,5 +1,8 @@
 package clipper2
 
+import clipper2.clipper32.core.Path32
+import clipper2.clipper32.core.Paths32
+import clipper2.clipper32.core.Point32
 import clipper2.core.*
 
 ///** Read the resource as Strings. */
@@ -434,15 +437,15 @@ object ClipperFileIO {
     )
 
     class TestCase32(
-        val caption: String?,
-        val clipType: ClipType?,
-        val fillRule: FillRule?,
-        val area: Long,
-        val count: Int,
-        val GetIdx: Int,
-        val subj: Paths32,
-        val subj_open: Paths32,
-        val clip: Paths32,
-        val testNum: Int
+            val caption: String?,
+            val clipType: ClipType?,
+            val fillRule: FillRule?,
+            val area: Long,
+            val count: Int,
+            val GetIdx: Int,
+            val subj: Paths32,
+            val subj_open: Paths32,
+            val clip: Paths32,
+            val testNum: Int
     )
 }

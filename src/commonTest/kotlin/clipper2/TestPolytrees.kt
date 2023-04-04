@@ -313,14 +313,14 @@ public class TestPolytrees {
         for (i in 0 until pp.count) {
             val child: PolyPath64 = pp.get(i)
             val tempRef_counter = RefObject(counter)
-            PolyPathContainsPoint(child, pt, tempRef_counter)
+            polyPathContainsPoint(child, pt, tempRef_counter)
             counter = tempRef_counter.argValue!!
         }
         assertTrue(counter >= 0, "Polytree has too many holes")
         return counter != 0
     }
 
-    fun PolyPathContainsPoint(pp: PolyPath64, pt: Point64, counter: RefObject<Int>) {
+    fun polyPathContainsPoint(pp: PolyPath64, pt: Point64, counter: RefObject<Int>) {
         if (pointInPolygon(pt, pp.polygon!!) !== PointInPolygonResult.IsOutside) {
             if (pp.isHole) {
                 counter.argValue = counter.argValue!! - 1
@@ -330,7 +330,7 @@ public class TestPolytrees {
         }
         for (i in 0 until pp.count) {
             val child = pp[i]
-            PolyPathContainsPoint(child, pt, counter)
+            polyPathContainsPoint(child, pt, counter)
         }
     }
 }

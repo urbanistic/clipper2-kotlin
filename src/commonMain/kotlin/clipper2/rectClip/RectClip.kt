@@ -1,4 +1,4 @@
-package clipper2.RectClip
+package clipper2.rectClip
 
 import Clipper.getBounds
 import clipper2.core.InternalClipper.crossProduct

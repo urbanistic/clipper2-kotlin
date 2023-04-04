@@ -1,10 +1,10 @@
-package clipper2.RectClip
+package clipper2.clipper32.rectClip
 
 import Clipper.getBounds
-import clipper2.core.Path64
-import clipper2.core.Paths64
-import clipper2.core.Point64
-import clipper2.core.Rect64
+import clipper2.clipper32.core.Path32
+import clipper2.clipper32.core.Paths32
+import clipper2.clipper32.core.Point32
+import clipper2.clipper32.core.Rect32
 import tangible.RefObject
 
 
@@ -19,9 +19,9 @@ import tangible.RefObject
  *
  * @since 1.0.6
  */
-class RectClipLines(rect: Rect64?) : RectClip(rect!!) {
-    fun execute(paths: Paths64): Paths64 {
-        val result = Paths64()
+class RectClipLines32(rect: Rect32?) : RectClip32(rect!!) {
+    fun execute(paths: Paths32): Paths32 {
+        val result = Paths32()
         if (rect.isEmpty()) {
             return result
         }
@@ -53,9 +53,9 @@ class RectClipLines(rect: Rect64?) : RectClip(rect!!) {
         return result
     }
 
-    private fun getPath(op: OutPt2?): Path64 {
+    private fun getPath(op: OutPt2?): Path32 {
         var op: OutPt2? = op
-        val result = Path64()
+        val result = Path32()
         if (op == null || op == op.next) {
             return result
         }
@@ -69,7 +69,7 @@ class RectClipLines(rect: Rect64?) : RectClip(rect!!) {
         return result
     }
 
-    private fun executeInternal(path: Path64) {
+    private fun executeInternal(path: Path32) {
         results.clear()
         if (path.size < 2 || rect.isEmpty()) {
             return
@@ -105,7 +105,7 @@ class RectClipLines(rect: Rect64?) : RectClip(rect!!) {
             }
             val prevPt = path[i.argValue!! - 1]
             val crossingLoc = RefObject(loc.argValue)
-            val ip = Point64()
+            val ip = Point32()
             if (!getIntersection(rectPath, path[i.argValue!!], prevPt, crossingLoc, ip)) {
                 // ie remaining outside (& crossingLoc still == loc)
                 i.argValue = i.argValue!! + 1
@@ -122,7 +122,7 @@ class RectClipLines(rect: Rect64?) : RectClip(rect!!) {
                 // passing right through rect. 'ip' here will be the second
                 // intersect pt but we'll also need the first intersect pt (ip2)
                 crossingLoc.argValue = prev.argValue
-                val ip2 = Point64()
+                val ip2 = Point32()
                 getIntersection(rectPath, prevPt, path[i.argValue!!], crossingLoc, ip2)
                 add(ip2)
                 add(ip)

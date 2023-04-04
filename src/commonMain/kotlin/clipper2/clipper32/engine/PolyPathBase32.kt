@@ -1,7 +1,6 @@
-package clipper2.engine
+package clipper2.clipper32.engine
 
-import clipper2.core.Path32
-import clipper2.core.Path64
+import clipper2.clipper32.core.Path32
 import kotlin.js.JsExport
 
 @JsExport

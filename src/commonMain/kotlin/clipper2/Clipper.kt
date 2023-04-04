@@ -1,8 +1,11 @@
 @file:Suppress("unused")
 
 import clipper2.Minkowski
-import clipper2.RectClip.RectClip
-import clipper2.RectClip.RectClipLines
+import clipper2.clipper32.core.*
+import clipper2.clipper32.engine.PolyPath32
+import clipper2.clipper32.engine.PolyTree32
+import clipper2.rectClip.RectClip
+import clipper2.rectClip.RectClipLines
 import clipper2.core.*
 import clipper2.engine.Clipper64
 import clipper2.engine.ClipperD
@@ -724,6 +727,10 @@ object Clipper {
         return path.reversed() as Path64
     }
 
+    fun reversePath(path: Path32): Path32 {
+        return path.reversed() as Path32
+    }
+
     fun reversePath(path: PathD): PathD {
         return path.reversed() as PathD
     }
@@ -782,6 +789,46 @@ object Clipper {
             }
         }
         return if (result.left == Long.MAX_VALUE) Rect64() else result
+    }
+
+    fun getBounds(path: Path32): Rect32 {
+        val result = InvalidRect32
+        for (pt in path) {
+            if (pt.x < result.left) {
+                result.left = pt.x
+            }
+            if (pt.x > result.right) {
+                result.right = pt.x
+            }
+            if (pt.y < result.top) {
+                result.top = pt.y
+            }
+            if (pt.y > result.bottom) {
+                result.bottom = pt.y
+            }
+        }
+        return if (result.left == Int.MAX_VALUE) Rect32() else result
+    }
+
+    fun getBounds(paths: Paths32): Rect32 {
+        val result = InvalidRect32
+        for (path in paths) {
+            for (pt in path) {
+                if (pt.x < result.left) {
+                    result.left = pt.x
+                }
+                if (pt.x > result.right) {
+                    result.right = pt.x
+                }
+                if (pt.y < result.top) {
+                    result.top = pt.y
+                }
+                if (pt.y > result.bottom) {
+                    result.bottom = pt.y
+                }
+            }
+        }
+        return if (result.left == Int.MAX_VALUE) Rect32() else result
     }
 
     fun getBounds(path: PathD): RectD {
@@ -899,6 +946,26 @@ object Clipper {
         return result
     }
 
+    fun stripDuplicates(path: Path32, isClosedPath: Boolean): Path32 {
+        val cnt = path.size
+        val result = Path32() //cnt
+        if (cnt == 0) {
+            return result
+        }
+        var lastPt = path[0]
+        result.add(lastPt)
+        for (i in 1 until cnt) {
+            if (!path[i].equals(lastPt)) {
+                lastPt = path[i]
+                result.add(lastPt)
+            }
+        }
+        if (isClosedPath && result[0].equals(lastPt)) {
+            result.removeAt(result.size - 1)
+        }
+        return result
+    }
+
     private fun addPolyNodeToPaths(polyPath: PolyPath64, paths: Paths64) {
         if (!polyPath.polygon.isNullOrEmpty()) {
             paths.add(polyPath.polygon!!)
@@ -910,12 +977,34 @@ object Clipper {
         }
     }
 
+    private fun addPolyNodeToPaths(polyPath: PolyPath32, paths: Paths32) {
+        if (!polyPath.polygon.isNullOrEmpty()) {
+            paths.add(polyPath.polygon!!)
+        }
+
+        val iterator = polyPath.iterator()
+        while (iterator.hasNext()) {
+            addPolyNodeToPaths(iterator.next() as PolyPath32, paths)
+        }
+    }
+
     fun polyTreeToPaths64(polyTree: PolyTree64): Paths64 {
         val result = Paths64()
 
         val iterator = polyTree.iterator()
         while (iterator.hasNext()) {
             addPolyNodeToPaths(iterator.next() as PolyPath64, result)
+        }
+
+        return result
+    }
+
+    fun polyTreeToPaths32(polyTree: PolyTree32): Paths32 {
+        val result = Paths32()
+
+        val iterator = polyTree.iterator()
+        while (iterator.hasNext()) {
+            addPolyNodeToPaths(iterator.next() as PolyPath32, result)
         }
 
         return result
@@ -1389,6 +1478,10 @@ object Clipper {
         return InternalClipper.pointInPolygon(pt, polygon)
     }
 
+    fun pointInPolygon(pt: Point32, polygon: Path32): PointInPolygonResult {
+        return InternalClipper32.pointInPolygon(pt, polygon)
+    }
+
     fun pointInPolygon(pt: PointD?, polygon: PathD, precision: Int = 2): PointInPolygonResult {
         InternalClipper.checkPrecision(precision)
         val scale: Double = 10.0.pow(precision.toDouble())
@@ -1417,6 +1510,33 @@ object Clipper {
         result.add(Point64(center.x + radiusX, center.x.toDouble()))
         for (i in 1 until steps) {
             result.add(Point64(center.x + radiusX * dx, center.y + radiusY * dy))
+            val x = dx * co - dy * si
+            dy = dy * co + dx * si
+            dx = x
+        }
+        return result
+    }
+
+    fun ellipse(center: Point32, radiusX: Double, radiusY: Double = 0.0, steps: Int = 0): Path32 {
+        var radiusY = radiusY
+        var steps = steps
+        if (radiusX <= 0) {
+            return Path32()
+        }
+        if (radiusY <= 0) {
+            radiusY = radiusX
+        }
+        if (steps <= 2) {
+            steps = ceil(PI * sqrt((radiusX + radiusY) / 2)).toInt()
+        }
+        val si: Double = sin(2 * PI / steps)
+        val co: Double = cos(2 * PI / steps)
+        var dx = co
+        var dy = si
+        val result = Path32() //steps
+        result.add(Point32(center.x + radiusX, center.x.toDouble()))
+        for (i in 1 until steps) {
+            result.add(Point32(center.x + radiusX * dx, center.y + radiusY * dy))
             val x = dx * co - dy * si
             dy = dy * co + dx * si
             dx = x

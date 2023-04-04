@@ -87,46 +87,45 @@ import kotlin.time.measureTime
 //    }
 //}
 
-public class TestPolygons {
+public class TestPolygons32 {
     val iterations = 8
 
     @OptIn(ExperimentalTime::class)
     @Test
-    fun runTests() {
+    fun runTests32() {
         var counter = 0
-        val data = ClipperFileIO.loadTestCases("Polygons.txt")
-        val dataMap = mutableMapOf<String, ClipperFileIO.TestCase>()
+        val data = ClipperFileIO.loadTestCases32("Polygons.txt")
+        val dataMap = mutableMapOf<String, ClipperFileIO.TestCase32>()
 
         for (testcase in data) {
             var label = testcase.caption ?: ("PolygonTest:" + counter++)
             if (label.isEmpty()) {
                 label = "PolygonTest:" + counter++
             }
+            label += "(32)"
+
             dataMap[label] = testcase
         }
 
-        println("Running PolygonTests")
-        val time = measureTime {
-            for (test in dataMap) {
-                print(" ${test.key} ${test.value.clipType} ${test.value.fillRule}")
+        for (test in dataMap) {
+            print(" ${test.key} ${test.value.clipType} ${test.value.fillRule}")
+            val time2 = measureTime {
                 for (i in 0 until iterations) {
-                    runPolygonsTestCase(test.value)
+                    runPolygonsTestCase32(test.value)
                 }
             }
+            println(" -> passed in $time2")
         }
-        println("finished in $time")
     }
 
-    private fun runPolygonsTestCase(test: ClipperFileIO.TestCase) {
-        //print(test.testNum)
-
-        val c64 = Clipper64()
-        val solution = Paths64()
-        val solutionOpen = Paths64()
-        c64.addSubjects(test.subj)
-        c64.addOpenSubjects(test.subj_open)
-        c64.addClips(test.clip)
-        c64.execute(test.clipType!!, test.fillRule!!, solution, solutionOpen)
+    private fun runPolygonsTestCase32(test: ClipperFileIO.TestCase32) {
+        val c32 = Clipper32()
+        val solution = Paths32()
+        val solutionOpen = Paths32()
+        c32.addSubjects(test.subj)
+        c32.addOpenSubjects(test.subj_open)
+        c32.addClips(test.clip)
+        c32.execute(test.clipType!!, test.fillRule!!, solution, solutionOpen)
         val measuredCount: Int = solution.size
         val measuredArea = Clipper.area(solution).toLong()
         val storedCount: Int = test.count

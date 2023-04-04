@@ -1,5 +1,6 @@
-package clipper2.core
+package clipper2.clipper32.core
 
+import clipper2.core.PointD
 import clipper2.engine.PointInPolygonResult
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -50,7 +51,7 @@ object InternalClipper32 {
     }
 
     fun getIntersectPt(
-        ln1a: Point32, ln1b: Point32, ln2a: Point32, ln2b: Point32,  /* out */
+            ln1a: Point32, ln1b: Point32, ln2a: Point32, ln2b: Point32,  /* out */
         ip: Point32
     ): Boolean {
         val dy1 = (ln1b.y - ln1a.y).toDouble()
@@ -69,7 +70,7 @@ object InternalClipper32 {
     }
 
     fun getIntersectPoint(
-        ln1a: Point32, ln1b: Point32, ln2a: Point32, ln2b: Point32,  /* out */
+            ln1a: Point32, ln1b: Point32, ln2a: Point32, ln2b: Point32,  /* out */
         ip: PointD
     ): Boolean {
         val dy1 = (ln1b.y - ln1a.y).toDouble()
@@ -88,11 +89,11 @@ object InternalClipper32 {
     }
 
     fun segsIntersect(
-        seg1a: Point32,
-        seg1b: Point32,
-        seg2a: Point32,
-        seg2b: Point32,
-        inclusive: Boolean = false
+            seg1a: Point32,
+            seg1b: Point32,
+            seg2a: Point32,
+            seg2b: Point32,
+            inclusive: Boolean = false
     ): Boolean {
         return if (inclusive) {
             val res1 = crossProduct(seg1a, seg2a, seg2b)

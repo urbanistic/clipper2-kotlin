@@ -1,8 +1,8 @@
-package clipper2.engine
+package clipper2.clipper32.engine
 
 import clipper2.core.ClipType
 import clipper2.core.FillRule
-import clipper2.core.Paths32
+import clipper2.clipper32.core.Paths32
 import kotlin.js.JsExport
 import kotlin.js.JsName
 import kotlin.jvm.JvmOverloads
