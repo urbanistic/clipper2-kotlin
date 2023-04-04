@@ -15,7 +15,7 @@ import kotlin.js.JsName
 class Paths32 : MutableList<Path32> by mutableListOf() {
 
     override fun toString(): String {
-        val bld: StringBuilder = StringBuilder()
+        val bld = StringBuilder()
         for (path in this) {
             bld.append(path.toString() + "\n")
         }

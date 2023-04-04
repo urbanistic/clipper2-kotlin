@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package clipper2.core
 
 import kotlin.js.JsExport
@@ -15,7 +17,7 @@ import kotlin.js.JsExport
 class PathD : MutableList<PointD> by mutableListOf() {
 
     override fun toString(): String {
-        val bld: StringBuilder = StringBuilder()
+        val bld = StringBuilder()
         for (pt in this) {
             bld.append(pt.toString())
         }

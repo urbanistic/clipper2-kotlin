@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package clipper2.core
 
 import kotlin.js.JsExport

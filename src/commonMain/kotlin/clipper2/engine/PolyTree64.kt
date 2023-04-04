@@ -1,5 +1,7 @@
 package clipper2.engine
 
+import kotlin.js.JsExport
+
 /**
  * PolyTree64 is a read-only data structure that receives solutions from
  * clipping operations. It's an alternative to the Paths64 data structure which
@@ -31,4 +33,5 @@ package clipper2.engine
  * paths can't contain paths. When clipping open paths, these will always be
  * represented in solutions via a separate Paths64 structure.
  */
+@JsExport
 class PolyTree64 : PolyPath64()

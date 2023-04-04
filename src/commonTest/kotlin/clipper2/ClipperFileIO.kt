@@ -93,21 +93,23 @@ object ClipperFileIO {
             } else if (s.indexOf("CLIPS") == 0) {
                 GetIdx = 3
                 continue
-            } else {
-// 				continue;
             }
+//            else {
+// 				continue;
+//            }
             val paths = PathFromStr(s) // 0 or 1 path
             if (paths.isEmpty()) {
-                if (GetIdx == 3) {
-// 					return result;
-                }
+//                if (GetIdx == 3) {
+// 			        return result;
+//                }
                 if (s.indexOf("SUBJECTS_OPEN") == 0) {
                     GetIdx = 2
                 } else if (s.indexOf("CLIPS") == 0) {
                     GetIdx = 3
-                } else {
-// 					return result;
                 }
+//                else {
+// 					return result;
+//                }
                 continue
             }
             if (GetIdx == 1 && !paths[0].isEmpty()) {
