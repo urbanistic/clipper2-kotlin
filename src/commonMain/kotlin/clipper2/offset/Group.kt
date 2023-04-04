@@ -4,7 +4,6 @@ import clipper2.core.Path64
 import clipper2.core.Paths64
 import kotlin.jvm.JvmOverloads
 
-
 internal class Group @JvmOverloads constructor(
     paths: Paths64,
     joinType: JoinType,
@@ -18,7 +17,7 @@ internal class Group @JvmOverloads constructor(
     var pathsReversed: Boolean
 
     init {
-        inPaths = Paths64.of(paths) //paths
+        inPaths = Paths64.of(paths) // paths
         this.joinType = joinType
         this.endType = endType
         outPath = Path64()

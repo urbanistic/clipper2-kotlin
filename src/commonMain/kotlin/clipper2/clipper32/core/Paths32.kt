@@ -20,11 +20,11 @@ public class Paths32 : MutableList<Path32> by mutableListOf() {
         return bld.toString()
     }
 
-    public fun asArray(): Array<Path32>{
+    public fun asArray(): Array<Path32> {
         return this.toTypedArray()
     }
 
-    companion object{
+    companion object {
         @JsName("ofPaths32")
         fun of(elements: Paths32): Paths32 {
             val paths = Paths32()
@@ -40,7 +40,7 @@ public class Paths32 : MutableList<Path32> by mutableListOf() {
         }
 
         public fun ofPathsD(paths: PathsD): Paths32 {
-            val result = Paths32() //path.size
+            val result = Paths32() // path.size
             for (path in paths) {
                 result.add(Path32.ofPathD(path))
             }

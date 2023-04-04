@@ -24,11 +24,11 @@ public class Path32 : MutableList<Point32> by mutableListOf() {
         return bld.toString()
     }
 
-    public fun asArray(): Array<Point32>{
+    public fun asArray(): Array<Point32> {
         return this.toTypedArray()
     }
 
-    companion object{
+    companion object {
         public fun of(vararg elements: Point32): Path32 {
             val path = Path32()
             path.addAll(elements)
@@ -36,7 +36,7 @@ public class Path32 : MutableList<Point32> by mutableListOf() {
             // return mutableListOf<Point32>(*elements) as Path32
         }
         public fun ofPathD(path: PathD): Path32 {
-            val result = Path32() //path.size
+            val result = Path32() // path.size
             for (pt in path) {
                 result.add(Point32(pt))
             }

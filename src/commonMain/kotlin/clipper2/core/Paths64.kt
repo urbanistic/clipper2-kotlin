@@ -19,27 +19,27 @@ public class Paths64 : MutableList<Path64> by mutableListOf() {
         return bld.toString()
     }
 
-    public fun asArray(): Array<Path64>{
+    public fun asArray(): Array<Path64> {
         return this.toTypedArray()
     }
 
-    companion object{
+    companion object {
         @JsName("ofPaths64")
-        fun of(elements: Paths64): Paths64{
+        fun of(elements: Paths64): Paths64 {
             val paths = Paths64()
             paths.addAll(elements)
             return paths
         }
 
         @JsName("ofPath64s")
-        fun of(vararg elements: Path64): Paths64{
+        fun of(vararg elements: Path64): Paths64 {
             val paths = Paths64()
             paths.addAll(elements)
             return paths
         }
 
-        public fun ofPathsD(paths: PathsD): Paths64{
-            val result = Paths64() //path.size
+        public fun ofPathsD(paths: PathsD): Paths64 {
+            val result = Paths64() // path.size
             for (path in paths) {
                 result.add(Path64.ofPathD(path))
             }

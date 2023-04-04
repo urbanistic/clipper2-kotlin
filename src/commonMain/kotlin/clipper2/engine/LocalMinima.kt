@@ -2,7 +2,6 @@ package clipper2.engine
 
 import clipper2.core.PathType
 
-
 class LocalMinima {
     var vertex: ClipperBase.Vertex? = null
     var polytype: PathType? = PathType.Subject

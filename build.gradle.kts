@@ -1,20 +1,29 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.*
 
 plugins {
     id("maven-publish")
-    kotlin("multiplatform") version "1.8.10"
+    kotlin("multiplatform") version "1.8.20"
+    id("org.jlleitschuh.gradle.ktlint") version "11.3.1"
 //    id("io.kotest.multiplatform") version "5.5.5"
 }
 
 group = "de.urbanistic"
-version = "1.2.2"
+version = "1.2.21"
 
 repositories {
     mavenCentral()
 }
 
-
 kotlin {
+    sourceSets {
+        all {
+            languageSettings.apply {
+                optIn("kotlin.js.ExperimentalJsExport")
+            }
+        }
+    }
+
     jvm {
         jvmToolchain(14)
         withJava()

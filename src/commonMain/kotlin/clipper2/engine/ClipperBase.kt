@@ -16,11 +16,10 @@ import clipper2.core.Paths64
 import clipper2.core.Point64
 import clipper2.core.PointD
 import clipper2.core.Rect64
-import kotlin.math.abs
-import kotlin.math.roundToLong
 import tangible.OutObject
 import tangible.RefObject
-
+import kotlin.math.abs
+import kotlin.math.roundToLong
 
 /**
  * Subject and Clip paths are passed to a Clipper object via AddSubject,
@@ -91,7 +90,7 @@ abstract class ClipperBase protected constructor() {
             } else if (hs2.rightOp == null) {
                 -1
             } else {
-                hs1.leftOp!!.pt.x.compareTo(hs2.leftOp!!.pt.x) //java.lang.Long.compare(hs1.leftOp!!.pt.x, hs2.leftOp!!.pt.x)
+                hs1.leftOp!!.pt.x.compareTo(hs2.leftOp!!.pt.x) // java.lang.Long.compare(hs1.leftOp!!.pt.x, hs2.leftOp!!.pt.x)
             }
         }
     }
@@ -235,9 +234,11 @@ abstract class ClipperBase protected constructor() {
 
     protected fun reset() {
         if (!isSortedMinimaList) {
-            minimaList.sortWith(Comparator<LocalMinima> { locMin1: LocalMinima, locMin2: LocalMinima ->
-                locMin2.vertex!!.pt.y.compareTo(locMin1.vertex!!.pt.y)
-            })
+            minimaList.sortWith(
+                Comparator<LocalMinima> { locMin1: LocalMinima, locMin2: LocalMinima ->
+                    locMin2.vertex!!.pt.y.compareTo(locMin1.vertex!!.pt.y)
+                }
+            )
             isSortedMinimaList = true
         }
         for (i in minimaList.indices.reversed()) {
@@ -334,7 +335,7 @@ abstract class ClipperBase protected constructor() {
                     prevV = prevV.prev
                 }
                 if (v0 == prevV) {
-                    continue  // only open paths can be completely flat
+                    continue // only open paths can be completely flat
                 }
                 goingup = prevV.pt.y > v0.pt.y
             }
@@ -526,7 +527,8 @@ abstract class ClipperBase protected constructor() {
                     // now outside all polys of same polytype so set own WC ...
                     ae.windCount = if (isOpen(ae)) 1 else ae.windDx
                 }
-            } else  // 'ae' must be inside 'ae2'
+            } else {
+                // 'ae' must be inside 'ae2'
                 if (ae2.windDx * ae.windDx < 0) {
                     // reversing direction so use the same WC
                     ae.windCount = ae2.windCount
@@ -534,6 +536,7 @@ abstract class ClipperBase protected constructor() {
                     // otherwise keep 'increasing' the WC by 1 (i.e. away from 0) ...
                     ae.windCount = ae2.windCount + ae.windDx
                 }
+            }
             ae.windCount2 = ae2.windCount2
             ae2 = ae2.nextInAEL // i.e. get ready to calc WindCnt2
         }
@@ -705,7 +708,7 @@ abstract class ClipperBase protected constructor() {
             if (rightBound != null) {
                 rightBound.windCount = leftBound.windCount
                 rightBound.windCount2 = leftBound.windCount2
-                insertRightEdge(leftBound, rightBound) ///////
+                insertRightEdge(leftBound, rightBound) // /////
 
                 if (contributing) {
                     addLocalMinPoly(leftBound, rightBound, leftBound.bot, true)
@@ -1092,7 +1095,7 @@ abstract class ClipperBase protected constructor() {
         val prev = ae!!.prevInAEL
         val next = ae.nextInAEL
         if (prev == null && next == null && actives != ae) {
-            return  // already deleted
+            return // already deleted
         }
         if (prev != null) {
             prev.nextInAEL = next
@@ -1193,10 +1196,8 @@ abstract class ClipperBase protected constructor() {
             } else if (absDx2 > 100) {
                 ip = getClosestPtOnSegment(ip, ae2.bot!!, ae2.top!!)
             } else {
-                if (ip.y < topY) { ip.y = topY }
-                else { ip.y = currentBotY }
-                if (absDx1 < absDx2) { ip.x = topX(ae1, ip.y) }
-                else { ip.x = topX(ae2, ip.y) }
+                if (ip.y < topY) { ip.y = topY } else { ip.y = currentBotY }
+                if (absDx1 < absDx2) { ip.x = topX(ae1, ip.y) } else { ip.x = topX(ae2, ip.y) }
             }
         }
         val node = IntersectNode(ip, ae1, ae2)
@@ -1405,7 +1406,6 @@ abstract class ClipperBase protected constructor() {
         }
         var currOutrec: ClipperBase.OutRec? = horz.outrec
         while (true) {
-
             // loops through consec. horizontal edges (if open)
             var ae: ClipperBase.Active? = if (isLeftToRight) horz.nextInAEL else horz.prevInAEL
             while (ae != null) {
@@ -1694,8 +1694,10 @@ abstract class ClipperBase protected constructor() {
                         hs2.leftOp = hs2.leftOp!!.prev
                     }
                     val join = HorzJoin(
-                        duplicateOp(hs1.leftOp!!, true), duplicateOp(
-                            hs2.leftOp!!, false
+                        duplicateOp(hs1.leftOp!!, true),
+                        duplicateOp(
+                            hs2.leftOp!!,
+                            false
                         )
                     )
                     _horzJoinList.add(join)
@@ -1707,8 +1709,10 @@ abstract class ClipperBase protected constructor() {
                         hs2.leftOp = hs2.leftOp!!.next
                     }
                     val join = HorzJoin(
-                        duplicateOp(hs2.leftOp!!, true), duplicateOp(
-                            hs1.leftOp!!, false
+                        duplicateOp(hs2.leftOp!!, true),
+                        duplicateOp(
+                            hs1.leftOp!!,
+                            false
                         )
                     )
                     _horzJoinList.add(join)
@@ -1771,12 +1775,15 @@ abstract class ClipperBase protected constructor() {
         var startOp = outrec.pts
         var op2 = startOp
         while (true) {
-
             // NB if preserveCollinear == true, then only remove 180 deg. spikes
-            if (crossProduct(op2!!.prev!!.pt, op2.pt, op2.next.pt) == 0.0
-                && (op2.pt.opEquals(op2.prev!!.pt) || op2.pt.opEquals(op2.next.pt) || !preserveCollinear || dotProduct(
-                    op2.prev!!.pt, op2.pt, op2.next.pt
-                ) < 0)
+            if (crossProduct(op2!!.prev!!.pt, op2.pt, op2.next.pt) == 0.0 &&
+                (
+                    op2.pt.opEquals(op2.prev!!.pt) || op2.pt.opEquals(op2.next.pt) || !preserveCollinear || dotProduct(
+                            op2.prev!!.pt,
+                            op2.pt,
+                            op2.next.pt
+                        ) < 0
+                    )
             ) {
                 if (op2 == outrec.pts) {
                     outrec.pts = op2.prev
@@ -1803,7 +1810,7 @@ abstract class ClipperBase protected constructor() {
         val prevOp = splitOp.prev
         val nextNextOp = splitOp.next.next
         outrec.pts = prevOp
-        //		OutPt result = prevOp;
+        // 		OutPt result = prevOp;
         val tmp = PointD()
         getIntersectPoint(prevOp!!.pt, splitOp.pt, splitOp.next.pt, nextNextOp.pt, tmp)
         val ip = Point64(tmp)
@@ -1858,7 +1865,6 @@ abstract class ClipperBase protected constructor() {
     private fun fixSelfIntersects(outrec: OutRec) {
         var op2 = outrec.pts
         while (true) {
-
             // triangles can't self-intersect
             if (op2!!.prev === op2!!.next.next) {
                 break
@@ -1956,8 +1962,8 @@ abstract class ClipperBase protected constructor() {
                 split = getRealOutRec(outrecList[i])
                 if (split != null && split !== outrec && split !== outrec.owner && checkBounds(split) && split.bounds.contains(
                         outrec.bounds
-                    )
-                    && path1InsidePath2(outrec.pts!!, split.pts!!)
+                    ) &&
+                    path1InsidePath2(outrec.pts!!, split.pts!!)
                 ) {
                     recursiveCheckOwners(split, polypath)
                     outrec.owner = split // found in split
@@ -2065,7 +2071,9 @@ abstract class ClipperBase protected constructor() {
             }
             return if (pt2.x > pt1.x) {
                 Double.NEGATIVE_INFINITY
-            } else Double.POSITIVE_INFINITY
+            } else {
+                Double.POSITIVE_INFINITY
+            }
         }
 
         private fun topX(ae: Active, currentY: Long): Long {
@@ -2074,7 +2082,9 @@ abstract class ClipperBase protected constructor() {
             }
             return if (currentY == ae.bot!!.y) {
                 ae.bot!!.x
-            } else ae.bot!!.x + (ae.dx * (currentY - ae.bot!!.y)).roundToLong()
+            } else {
+                ae.bot!!.x + (ae.dx * (currentY - ae.bot!!.y)).roundToLong()
+            }
         }
 
         private fun isHorizontal(ae: Active): Boolean {
@@ -2110,13 +2120,17 @@ abstract class ClipperBase protected constructor() {
         private fun nextVertex(ae: Active): Vertex? {
             return if (ae.windDx > 0) {
                 ae.vertexTop!!.next
-            } else ae.vertexTop!!.prev
+            } else {
+                ae.vertexTop!!.prev
+            }
         }
 
         private fun prevPrevVertex(ae: Active): Vertex? {
             return if (ae.windDx > 0) {
                 ae.vertexTop!!.prev!!.prev
-            } else ae.vertexTop!!.next!!.next
+            } else {
+                ae.vertexTop!!.next!!.next
+            }
         }
 
         private fun isMaxima(vertex: Vertex): Boolean {
@@ -2302,14 +2316,18 @@ abstract class ClipperBase protected constructor() {
             }
             return if (crossProduct(
                     prevPrevVertex(resident)!!.pt,
-                    resident.bot!!, resident.top!!
+                    resident.bot!!,
+                    resident.top!!
                 ) == 0.0
             ) {
                 true
-            } else crossProduct(
-                prevPrevVertex(resident)!!.pt,
-                newcomer.bot!!, prevPrevVertex(newcomer)!!.pt
-            ) > 0 == newcomerIsLeft
+            } else {
+                crossProduct(
+                    prevPrevVertex(resident)!!.pt,
+                    newcomer.bot!!,
+                    prevPrevVertex(newcomer)!!.pt
+                ) > 0 == newcomerIsLeft
+            }
             // compare turning direction of the alternate bound
         }
 
@@ -2358,7 +2376,6 @@ abstract class ClipperBase protected constructor() {
         }
 
         private fun addOutPt(ae: Active, pt: Point64): OutPt {
-
             // Outrec.OutPts: a circular doubly-linked-list of POutPt where ...
             // opFront[.Prev]* ~~~> opBack & opBack == opFront.Next
             val outrec = ae.outrec
@@ -2580,16 +2597,16 @@ abstract class ClipperBase protected constructor() {
                 // must have touched or crossed the pt.y horizonal
                 // and this must happen an even number of times
                 if (op2.pt.y == pt.y) // touching the horizontal
-                {
-                    if (op2.pt.x == pt.x || op2.pt.y == op2.prev!!.pt.y && pt.x < op2.prev!!.pt.x != pt.x < op2.pt.x) {
-                        return PointInPolygonResult.IsOn
+                    {
+                        if (op2.pt.x == pt.x || op2.pt.y == op2.prev!!.pt.y && pt.x < op2.prev!!.pt.x != pt.x < op2.pt.x) {
+                            return PointInPolygonResult.IsOn
+                        }
+                        op2 = op2.next
+                        if (op2 === op) {
+                            break
+                        }
+                        continue
                     }
-                    op2 = op2.next
-                    if (op2 === op) {
-                        break
-                    }
-                    continue
-                }
                 if (op2.pt.x <= pt.x || op2.prev!!.pt.x <= pt.x) {
                     if (op2.prev!!.pt.x < pt.x && op2.pt.x < pt.x) {
                         v = 1 - v // toggle val
@@ -2649,10 +2666,15 @@ abstract class ClipperBase protected constructor() {
         }
 
         private fun isVerySmallTriangle(op: OutPt): Boolean {
-            return (op.next.next === op.prev
-                    && (ptsReallyClose(op.prev!!.pt, op.next.pt) || ptsReallyClose(
-                op.pt, op.next.pt
-            ) || ptsReallyClose(op.pt, op.prev!!.pt)))
+            return (
+                op.next.next === op.prev &&
+                    (
+                        ptsReallyClose(op.prev!!.pt, op.next.pt) || ptsReallyClose(
+                            op.pt,
+                            op.next.pt
+                        ) || ptsReallyClose(op.pt, op.prev!!.pt)
+                        )
+                )
         }
 
         private fun isValidClosedPath(op: OutPt?): Boolean {

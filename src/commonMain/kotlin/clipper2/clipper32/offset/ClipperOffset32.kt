@@ -21,6 +21,8 @@ import clipper2.core.PathD
 import clipper2.core.PointD
 import clipper2.offset.EndType
 import clipper2.offset.JoinType
+import tangible.OutObject
+import tangible.RefObject
 import kotlin.js.JsExport
 import kotlin.js.JsName
 import kotlin.math.PI
@@ -32,9 +34,6 @@ import kotlin.math.cos
 import kotlin.math.log10
 import kotlin.math.sin
 import kotlin.math.sqrt
-import tangible.OutObject
-import tangible.RefObject
-
 
 /**
  * Geometric offsetting refers to the process of creating parallel curves that
@@ -160,7 +159,7 @@ class ClipperOffset32(
         if (cnt == 0) {
             return
         }
-        val pp = Paths32.of(path) //Arrays.asList(path))
+        val pp = Paths32.of(path) // Arrays.asList(path))
         addPaths(pp, joinType, endType)
     }
 
@@ -286,17 +285,17 @@ class ClipperOffset32(
         }
         group.outPath.add(Point32(pt.x + offsetVec.x, pt.y + offsetVec.y))
         if (angle > -PI + 0.01) // avoid 180deg concave
-        {
-            val steps = ceil(stepsPerRad * abs(angle)).toInt()
-            for (i in 1 until steps)  // ie 1 less than steps
             {
-                offsetVec = PointD(
-                    offsetVec.x * _stepCos - _stepSin * offsetVec.y,
-                    offsetVec.x * _stepSin + offsetVec.y * _stepCos
-                )
-                group.outPath.add(Point32(pt.x + offsetVec.x, pt.y + offsetVec.y))
+                val steps = ceil(stepsPerRad * abs(angle)).toInt()
+                for (i in 1 until steps) // ie 1 less than steps
+                    {
+                        offsetVec = PointD(
+                            offsetVec.x * _stepCos - _stepSin * offsetVec.y,
+                            offsetVec.x * _stepSin + offsetVec.y * _stepCos
+                        )
+                        group.outPath.add(Point32(pt.x + offsetVec.x, pt.y + offsetVec.y))
+                    }
             }
-        }
         group.outPath.add(getPerpendic(pt, normals[j]))
     }
 
@@ -455,7 +454,7 @@ class ClipperOffset32(
             // offset (delta). Obviously very large offsets will almost always
             // require much less precision. See also offset_triginometry2.svg
             val arcTol = if (arcTolerance > 0.01) arcTolerance else log10(2 + abs_group_delta) * DEFAULT_ARC_TOLERANCE
-            //stepsPerRad = 0.5 / acos(1 - arcTol / abs_group_delta)
+            // stepsPerRad = 0.5 / acos(1 - arcTol / abs_group_delta)
             val stepsPer360: Double = PI / acos(1 - arcTol / abs_group_delta)
             _stepSin = sin(2 * PI / stepsPer360)
             _stepCos = cos(2 * PI / stepsPer360)

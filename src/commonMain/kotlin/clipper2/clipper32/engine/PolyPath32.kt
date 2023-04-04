@@ -4,7 +4,6 @@ import Clipper
 import clipper2.clipper32.core.Path32
 import kotlin.jvm.JvmOverloads
 
-
 /**
  * PolyPath32 objects are contained inside PolyTree32s and represents a single
  * polygon contour. PolyPath32s can also contain children, and there's no limit

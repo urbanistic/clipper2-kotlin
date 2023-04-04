@@ -1,12 +1,12 @@
 package clipper2.clipper32.engine
 
+import clipper2.clipper32.core.Paths32
 import clipper2.core.ClipType
 import clipper2.core.FillRule
-import clipper2.clipper32.core.Paths32
+import kotlin.js.ExperimentalJsExport
 import kotlin.js.JsExport
 import kotlin.js.JsName
 import kotlin.jvm.JvmOverloads
-
 
 /**
  * The Clipper class performs boolean 'clipping'. This class is very similar to
@@ -36,10 +36,10 @@ class Clipper32 : ClipperBase32() {
      */
     @JvmOverloads
     fun execute(
-            clipType: ClipType,
-            fillRule: FillRule,
-            solutionClosed: Paths32,
-            solutionOpen: Paths32 = Paths32()
+        clipType: ClipType,
+        fillRule: FillRule,
+        solutionClosed: Paths32,
+        solutionOpen: Paths32 = Paths32()
     ): Boolean {
         solutionClosed.clear()
         solutionOpen.clear()
@@ -56,10 +56,10 @@ class Clipper32 : ClipperBase32() {
     @JvmOverloads
     @JsName("executePolytree")
     fun execute(
-            clipType: ClipType,
-            fillRule: FillRule,
-            polytree: PolyTree32,
-            openPaths: Paths32 = Paths32()
+        clipType: ClipType,
+        fillRule: FillRule,
+        polytree: PolyTree32,
+        openPaths: Paths32 = Paths32()
     ): Boolean {
         polytree.clear()
         openPaths.clear()

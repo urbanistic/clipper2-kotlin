@@ -7,7 +7,6 @@ import clipper2.core.Point64
 import clipper2.core.Rect64
 import tangible.RefObject
 
-
 /**
  * ExecuteRectClipLines intersects subject open paths (polylines) with the specified
  * rectangular clipping region.
@@ -31,7 +30,7 @@ class RectClipLines(rect: Rect64?) : RectClip(rect!!) {
             }
             pathBounds = getBounds(path)
             if (!rect.intersects(pathBounds!!)) {
-                continue  // the path must be completely outside fRect
+                continue // the path must be completely outside fRect
             }
             // Apart from that, we can't be sure whether the path
             // is completely outside or completed inside or intersects
@@ -96,7 +95,7 @@ class RectClipLines(rect: Rect64?) : RectClip(rect!!) {
             add(path[0])
         }
 
-        ///////////////////////////////////////////////////
+        // /////////////////////////////////////////////////
         while (i.argValue!! <= highI) {
             prev.argValue = loc.argValue
             getNextLocation(path, loc, i, highI)
@@ -112,13 +111,13 @@ class RectClipLines(rect: Rect64?) : RectClip(rect!!) {
                 continue
             }
 
-            ////////////////////////////////////////////////////
+            // //////////////////////////////////////////////////
             // we must be crossing the rect boundary to get here
-            ////////////////////////////////////////////////////
+            // //////////////////////////////////////////////////
             if (loc.argValue === Location.INSIDE) // path must be entering rect
-            {
-                add(ip)
-            } else if (prev.argValue !== Location.INSIDE) {
+                {
+                    add(ip)
+                } else if (prev.argValue !== Location.INSIDE) {
                 // passing right through rect. 'ip' here will be the second
                 // intersect pt but we'll also need the first intersect pt (ip2)
                 crossingLoc.argValue = prev.argValue
@@ -126,10 +125,10 @@ class RectClipLines(rect: Rect64?) : RectClip(rect!!) {
                 getIntersection(rectPath, prevPt, path[i.argValue!!], crossingLoc, ip2)
                 add(ip2)
                 add(ip)
-            } else  // path must be exiting rect
-            {
-                add(ip)
-            }
+            } else // path must be exiting rect
+                {
+                    add(ip)
+                }
         }
     }
 }

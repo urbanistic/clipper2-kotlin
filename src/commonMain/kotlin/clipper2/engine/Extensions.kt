@@ -1,14 +1,14 @@
 package clipper2.engine
 
 fun MutableList<Long>.addIfMissingAndSort(element: Long) {
-    if(!this.contains(element)){
+    if (!this.contains(element)) {
         this.add(element)
         this.sort()
     }
 }
 
 fun MutableList<Int>.addIfMissingAndSort(element: Int) {
-    if(!this.contains(element)){
+    if (!this.contains(element)) {
         this.add(element)
         this.sort()
     }
@@ -21,10 +21,9 @@ fun <T : Any> MutableList<T>.pollLast(): T {
 }
 
 fun <T : Any> MutableList<T>.swap(i: Int, j: Int) {
-    if(i == j) return
+    if (i == j) return
 
     val oi = this[i]
     this[i] = this[j]
     this[j] = oi
 }
-

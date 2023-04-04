@@ -19,23 +19,23 @@ public class PathsD : MutableList<PathD> by mutableListOf() {
         return bld.toString()
     }
 
-    companion object{
+    companion object {
         @JsName("ofPathsD")
-        public fun of(elements: PathsD): PathsD{
+        public fun of(elements: PathsD): PathsD {
             val paths = PathsD()
             paths.addAll(elements)
             return paths
         }
 
         @JsName("ofPathDs")
-        public fun of(vararg elements: PathD): PathsD{
+        public fun of(vararg elements: PathD): PathsD {
             val paths = PathsD()
             paths.addAll(elements)
             return paths
         }
 
-        public fun ofPaths64(paths: Paths64): PathsD{
-            val result = PathsD() //path.size
+        public fun ofPaths64(paths: Paths64): PathsD {
+            val result = PathsD() // path.size
             for (path in paths) {
                 result.add(PathD.ofPath64(path))
             }

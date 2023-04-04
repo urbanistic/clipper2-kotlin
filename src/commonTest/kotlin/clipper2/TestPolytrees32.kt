@@ -10,6 +10,7 @@ import clipper2.clipper32.engine.Clipper32
 import clipper2.clipper32.engine.PolyPath32
 import clipper2.clipper32.engine.PolyTree32
 import clipper2.engine.PointInPolygonResult
+import tangible.RefObject
 import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -18,7 +19,6 @@ import kotlin.test.assertTrue
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTime
-import tangible.RefObject
 
 public class TestPolytrees32 {
     var pointInPolygonTotalCheckTime: Duration = Duration.ZERO
@@ -50,10 +50,10 @@ public class TestPolytrees32 {
         val clip: Paths32 = test.clip
 
         val pointsOfInterestOutside: List<Point32> = listOf(
-                Point32(21887, 10420),
-                Point32(21726, 10825),
-                Point32(21662, 10845),
-                Point32(21617, 10890)
+            Point32(21887, 10420),
+            Point32(21726, 10825),
+            Point32(21662, 10845),
+            Point32(21617, 10890)
         )
 
         for (pt in pointsOfInterestOutside) {
@@ -67,10 +67,10 @@ public class TestPolytrees32 {
         }
 
         val pointsOfInterestInside: List<Point32> = listOf(
-                Point32(21887, 10430),
-                Point32(21843, 10520),
-                Point32(21810, 10686),
-                Point32(21900, 10461)
+            Point32(21887, 10430),
+            Point32(21843, 10520),
+            Point32(21810, 10686),
+            Point32(21900, 10461)
         )
 
         for (pt in pointsOfInterestInside) {
@@ -109,7 +109,7 @@ public class TestPolytrees32 {
         }
         println("calculating area in $time")
 
-        //CHECKS
+        // CHECKS
         assertTrue(a1 > 330000, "solution has wrong area - value expected: 331,052; value returned; $a1 ")
         assertTrue(abs(a1 - a2) < 0.0001, "solution tree has wrong area - value expected: $a1; value returned; $a2 ")
         time = measureTime {
@@ -118,7 +118,7 @@ public class TestPolytrees32 {
                 "The polytree doesn't properly contain its children"
             )
         }
-        println("checktime per point: ${pointInPolygonTotalCheckTime / pointInPolygonNumChecks} = time(${pointInPolygonTotalCheckTime})/point($pointInPolygonNumChecks)")
+        println("checktime per point: ${pointInPolygonTotalCheckTime / pointInPolygonNumChecks} = time($pointInPolygonTotalCheckTime)/point($pointInPolygonNumChecks)")
         println("checkPolytreeFullyContainsChildren in $time")
 
         for (pt in pointsOfInterestOutside) {
@@ -182,7 +182,7 @@ public class TestPolytrees32 {
                 return false
             }
         }
-        //println("${totalTime / totalPointChecks} = time(${totalTime})/point($totalPointChecks)")
+        // println("${totalTime / totalPointChecks} = time(${totalTime})/point($totalPointChecks)")
         return true
     }
 
@@ -212,4 +212,3 @@ public class TestPolytrees32 {
         }
     }
 }
-

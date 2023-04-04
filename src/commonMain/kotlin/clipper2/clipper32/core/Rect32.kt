@@ -8,7 +8,7 @@ import kotlin.math.min
 @JsExport
 public class Rect32(var left: Int, var top: Int, var right: Int, var bottom: Int) {
 
-    init{
+    init {
         if (right < left || bottom < top) {
             throw IllegalArgumentException(InvalidRect)
         }
@@ -48,10 +48,10 @@ public class Rect32(var left: Int, var top: Int, var right: Int, var bottom: Int
 
     fun asPath(): Path32 {
         return Path32.of(
-                Point32(left, top),
-                Point32(right, top),
-                Point32(right, bottom),
-                Point32(left, bottom)
+            Point32(left, top),
+            Point32(right, top),
+            Point32(right, bottom),
+            Point32(left, bottom)
         )
     }
 
@@ -75,7 +75,7 @@ public class Rect32(var left: Int, var top: Int, var right: Int, var bottom: Int
 
     fun intersects(rec: Rect32): Boolean {
         return max(left, rec.left) <= min(right, rec.right) &&
-                max(top, rec.top) <= min(bottom, rec.bottom)
+            max(top, rec.top) <= min(bottom, rec.bottom)
     }
 
     fun clone(): Rect32 {

@@ -4,7 +4,6 @@ import Clipper
 import clipper2.core.Path64
 import kotlin.jvm.JvmOverloads
 
-
 /**
  * PolyPath64 objects are contained inside PolyTree64s and represents a single
  * polygon contour. PolyPath64s can also contain children, and there's no limit

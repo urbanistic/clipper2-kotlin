@@ -8,7 +8,7 @@ import kotlin.math.min
 @JsExport
 public class Rect64(var left: Long, var top: Long, var right: Long, var bottom: Long) {
 
-    init{
+    init {
         if (right < left || bottom < top) {
             throw IllegalArgumentException(InvalidRect)
         }
@@ -75,7 +75,7 @@ public class Rect64(var left: Long, var top: Long, var right: Long, var bottom: 
 
     fun intersects(rec: Rect64): Boolean {
         return max(left, rec.left) <= min(right, rec.right) &&
-                max(top, rec.top) <= min(bottom, rec.bottom)
+            max(top, rec.top) <= min(bottom, rec.bottom)
     }
 
     fun clone(): Rect64 {

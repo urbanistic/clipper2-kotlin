@@ -13,7 +13,7 @@ object InternalClipper32 {
     const val DEFAULT_ARC_TOLERANCE = 0.25
     private const val FLOATING_POINT_TOLERANCE = 1E-12
 
-    //	private static final double DEFAULT_MIN_EDGE_LENGTH = 0.1;
+    // 	private static final double DEFAULT_MIN_EDGE_LENGTH = 0.1;
     private const val PRECISION_RANGE_ERROR = "Error: Precision is out of range."
 
     fun checkPrecision(precision: Int) {
@@ -51,7 +51,10 @@ object InternalClipper32 {
     }
 
     fun getIntersectPt(
-            ln1a: Point32, ln1b: Point32, ln2a: Point32, ln2b: Point32,  /* out */
+        ln1a: Point32,
+        ln1b: Point32,
+        ln2a: Point32,
+        ln2b: Point32, /* out */
         ip: Point32
     ): Boolean {
         val dy1 = (ln1b.y - ln1a.y).toDouble()
@@ -70,7 +73,10 @@ object InternalClipper32 {
     }
 
     fun getIntersectPoint(
-            ln1a: Point32, ln1b: Point32, ln2a: Point32, ln2b: Point32,  /* out */
+        ln1a: Point32,
+        ln1b: Point32,
+        ln2a: Point32,
+        ln2b: Point32, /* out */
         ip: PointD
     ): Boolean {
         val dy1 = (ln1b.y - ln1a.y).toDouble()
@@ -89,11 +95,11 @@ object InternalClipper32 {
     }
 
     fun segsIntersect(
-            seg1a: Point32,
-            seg1b: Point32,
-            seg2a: Point32,
-            seg2b: Point32,
-            inclusive: Boolean = false
+        seg1a: Point32,
+        seg1b: Point32,
+        seg2a: Point32,
+        seg2b: Point32,
+        inclusive: Boolean = false
     ): Boolean {
         return if (inclusive) {
             val res1 = crossProduct(seg1a, seg2a, seg2b)
@@ -105,7 +111,9 @@ object InternalClipper32 {
             val res4 = crossProduct(seg2b, seg1a, seg1b)
             if (res3 * res4 > 0) {
                 false
-            } else res1 != 0.0 || res2 != 0.0 || res3 != 0.0 || res4 != 0.0
+            } else {
+                res1 != 0.0 || res2 != 0.0 || res3 != 0.0 || res4 != 0.0
+            }
             // ensure NOT collinear
         } else {
             crossProduct(seg1a, seg2a, seg2b) * crossProduct(seg1b, seg2a, seg2b) < 0 && crossProduct(
@@ -222,6 +230,8 @@ object InternalClipper32 {
         }
         return if (v == 0) {
             PointInPolygonResult.IsOutside
-        } else PointInPolygonResult.IsInside
+        } else {
+            PointInPolygonResult.IsInside
+        }
     }
 }

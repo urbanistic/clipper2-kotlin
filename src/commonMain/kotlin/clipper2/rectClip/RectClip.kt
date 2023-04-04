@@ -10,11 +10,11 @@ import clipper2.core.Paths64
 import clipper2.core.Point64
 import clipper2.core.Rect64
 import clipper2.engine.PointInPolygonResult
+import tangible.OutObject
+import tangible.RefObject
 import kotlin.js.JsExport
 import kotlin.jvm.JvmStatic
 import kotlin.math.abs
-import tangible.OutObject
-import tangible.RefObject
 
 /**
  * ExecuteRectClip intersects subject polygons with the specified rectangular clipping
@@ -231,7 +231,7 @@ open class RectClip(rect: Rect64) {
         }
         val startingLoc = loc.argValue
 
-        ///////////////////////////////////////////////////
+        // /////////////////////////////////////////////////
         i.argValue = 0
         while (i.argValue!! <= highI) {
             prev.argValue = loc.argValue
@@ -247,8 +247,11 @@ open class RectClip(rect: Rect64) {
                 // ie remaining outside
                 if (prevCrossLoc == Location.INSIDE) {
                     val isClockw = isClockwise(
-                        prev.argValue, loc.argValue, prevPt,
-                        path[i.argValue!!], mp
+                        prev.argValue,
+                        loc.argValue,
+                        prevPt,
+                        path[i.argValue!!],
+                        mp
                     )
                     do {
                         startLocs.add(prev.argValue)
@@ -257,8 +260,11 @@ open class RectClip(rect: Rect64) {
                     crossingLoc.argValue = prevCrossLoc // still not crossed
                 } else if (prev.argValue != Location.INSIDE && prev.argValue != loc.argValue) {
                     val isClockw = isClockwise(
-                        prev.argValue, loc.argValue, prevPt,
-                        path[i.argValue!!], mp
+                        prev.argValue,
+                        loc.argValue,
+                        prevPt,
+                        path[i.argValue!!],
+                        mp
                     )
                     do {
                         addCorner(prev, isClockw)
@@ -268,24 +274,27 @@ open class RectClip(rect: Rect64) {
                 continue
             }
 
-            ////////////////////////////////////////////////////
+            // //////////////////////////////////////////////////
             // we must be crossing the rect boundary to get here
-            ////////////////////////////////////////////////////
+            // //////////////////////////////////////////////////
             if (loc.argValue == Location.INSIDE) // path must be entering rect
-            {
-                if (firstCross == Location.INSIDE) {
-                    firstCross = crossingLoc.argValue!!
-                    startLocs.add(prev.argValue)
-                } else if (prev.argValue != crossingLoc.argValue) {
-                    val isClockw = isClockwise(
-                        prev.argValue, crossingLoc.argValue, prevPt,
-                        path[i.argValue!!], mp
-                    )
-                    do {
-                        addCorner(prev, isClockw)
-                    } while (prev.argValue != crossingLoc.argValue)
-                }
-            } else if (prev.argValue != Location.INSIDE) {
+                {
+                    if (firstCross == Location.INSIDE) {
+                        firstCross = crossingLoc.argValue!!
+                        startLocs.add(prev.argValue)
+                    } else if (prev.argValue != crossingLoc.argValue) {
+                        val isClockw = isClockwise(
+                            prev.argValue,
+                            crossingLoc.argValue,
+                            prevPt,
+                            path[i.argValue!!],
+                            mp
+                        )
+                        do {
+                            addCorner(prev, isClockw)
+                        } while (prev.argValue != crossingLoc.argValue)
+                    }
+                } else if (prev.argValue != Location.INSIDE) {
                 // passing right through rect. 'ip' here will be the second
                 // intersect pt but we'll also need the first intersect pt (ip2)
                 loc.argValue = prev.argValue
@@ -307,16 +316,16 @@ open class RectClip(rect: Rect64) {
                     crossingLoc.argValue = loc.argValue
                     continue
                 }
-            } else  // path must be exiting rect
-            {
-                loc.argValue = crossingLoc.argValue
-                if (firstCross == Location.INSIDE) {
-                    firstCross = crossingLoc.argValue!!
+            } else // path must be exiting rect
+                {
+                    loc.argValue = crossingLoc.argValue
+                    if (firstCross == Location.INSIDE) {
+                        firstCross = crossingLoc.argValue!!
+                    }
                 }
-            }
             add(ip)
         } // while i <= highI
-        ///////////////////////////////////////////////////
+        // /////////////////////////////////////////////////
         if (firstCross == Location.INSIDE) {
             // path never intersects
             if (startingLoc != Location.INSIDE) {
@@ -356,7 +365,7 @@ open class RectClip(rect: Rect64) {
             }
             pathBounds = getBounds(path)
             if (!rect.intersects(pathBounds!!)) {
-                continue  // the path must be completely outside fRect
+                continue // the path must be completely outside fRect
             } else if (rect.contains(pathBounds!!)) {
                 // the path must be completely inside rect_
                 result.add(path)
@@ -489,7 +498,10 @@ open class RectClip(rect: Rect64) {
                 p2a = ccw[j]
             }
             if (isHorz && !hasHorzOverlap(p1!!.pt, p1a!!.pt, p2!!.pt, p2a!!.pt) || !isHorz && !hasVertOverlap(
-                    p1!!.pt, p1a!!.pt, p2!!.pt, p2a!!.pt
+                    p1!!.pt,
+                    p1a!!.pt,
+                    p2!!.pt,
+                    p2a!!.pt
                 )
             ) {
                 ++j
@@ -538,14 +550,14 @@ open class RectClip(rect: Rect64) {
             var opIsLarger: Boolean
             var op2IsLarger: Boolean
             if (isHorz) // X
-            {
-                opIsLarger = op.pt.x > op.prev!!.pt.x
-                op2IsLarger = op2.pt.x > op2.prev!!.pt.x
-            } else  // Y
-            {
-                opIsLarger = op.pt.y > op.prev!!.pt.y
-                op2IsLarger = op2.pt.y > op2.prev!!.pt.y
-            }
+                {
+                    opIsLarger = op.pt.x > op.prev!!.pt.x
+                    op2IsLarger = op2.pt.x > op2.prev!!.pt.x
+                } else // Y
+                {
+                    opIsLarger = op.pt.y > op.prev!!.pt.y
+                    op2IsLarger = op2.pt.y > op2.prev!!.pt.y
+                }
             if (op.next === op.prev || op.pt === op.prev!!.pt) {
                 if (op2IsLarger == cwIsTowardLarger) {
                     cw[i] = op2
@@ -778,7 +790,10 @@ open class RectClip(rect: Rect64) {
 
         @JvmStatic
         protected fun getIntersection(
-            rectPath: Path64, p: Point64, p2: Point64?, loc: RefObject<Location>,  /* out */
+            rectPath: Path64,
+            p: Point64,
+            p2: Point64?,
+            loc: RefObject<Location>, /* out */
             ip: Point64?
         ): Boolean {
             /*
@@ -788,13 +803,19 @@ open class RectClip(rect: Rect64) {
             when (loc.argValue) {
                 Location.LEFT -> if (segsIntersect(
                         p,
-                        p2!!, rectPath[0], rectPath[3], true
+                        p2!!,
+                        rectPath[0],
+                        rectPath[3],
+                        true
                     )
                 ) {
                     getIntersectPt(p, p2, rectPath[0], rectPath[3], ip!!)
                 } else if (p.y < rectPath[0].y && segsIntersect(
                         p,
-                        p2, rectPath[0], rectPath[1], true
+                        p2,
+                        rectPath[0],
+                        rectPath[1],
+                        true
                     )
                 ) {
                     getIntersectPt(p, p2, rectPath[0], rectPath[1], ip!!)
@@ -808,13 +829,19 @@ open class RectClip(rect: Rect64) {
 
                 Location.RIGHT -> if (segsIntersect(
                         p,
-                        p2!!, rectPath[1], rectPath[2], true
+                        p2!!,
+                        rectPath[1],
+                        rectPath[2],
+                        true
                     )
                 ) {
                     getIntersectPt(p, p2, rectPath[1], rectPath[2], ip!!)
                 } else if (p.y < rectPath[0].y && segsIntersect(
                         p,
-                        p2, rectPath[0], rectPath[1], true
+                        p2,
+                        rectPath[0],
+                        rectPath[1],
+                        true
                     )
                 ) {
                     getIntersectPt(p, p2, rectPath[0], rectPath[1], ip!!)
@@ -828,20 +855,29 @@ open class RectClip(rect: Rect64) {
 
                 Location.TOP -> if (segsIntersect(
                         p,
-                        p2!!, rectPath[0], rectPath[1], true
+                        p2!!,
+                        rectPath[0],
+                        rectPath[1],
+                        true
                     )
                 ) {
                     getIntersectPt(p, p2, rectPath[0], rectPath[1], ip!!)
                 } else if (p.x < rectPath[0].x && segsIntersect(
                         p,
-                        p2, rectPath[0], rectPath[3], true
+                        p2,
+                        rectPath[0],
+                        rectPath[3],
+                        true
                     )
                 ) {
                     getIntersectPt(p, p2, rectPath[0], rectPath[3], ip!!)
                     loc.argValue = Location.LEFT
                 } else if (p.x > rectPath[1].x && segsIntersect(
                         p,
-                        p2, rectPath[1], rectPath[2], true
+                        p2,
+                        rectPath[1],
+                        rectPath[2],
+                        true
                     )
                 ) {
                     getIntersectPt(p, p2, rectPath[1], rectPath[2], ip!!)
@@ -852,20 +888,29 @@ open class RectClip(rect: Rect64) {
 
                 Location.BOTTOM -> if (segsIntersect(
                         p,
-                        p2!!, rectPath[2], rectPath[3], true
+                        p2!!,
+                        rectPath[2],
+                        rectPath[3],
+                        true
                     )
                 ) {
                     getIntersectPt(p, p2, rectPath[2], rectPath[3], ip!!)
                 } else if (p.x < rectPath[3].x && segsIntersect(
                         p,
-                        p2, rectPath[0], rectPath[3], true
+                        p2,
+                        rectPath[0],
+                        rectPath[3],
+                        true
                     )
                 ) {
                     getIntersectPt(p, p2, rectPath[0], rectPath[3], ip!!)
                     loc.argValue = Location.LEFT
                 } else if (p.x > rectPath[2].x && segsIntersect(
                         p,
-                        p2, rectPath[1], rectPath[2], true
+                        p2,
+                        rectPath[1],
+                        rectPath[2],
+                        true
                     )
                 ) {
                     getIntersectPt(p, p2, rectPath[1], rectPath[2], ip!!)
@@ -876,7 +921,10 @@ open class RectClip(rect: Rect64) {
 
                 Location.INSIDE -> if (segsIntersect(
                         p,
-                        p2!!, rectPath[0], rectPath[3], true
+                        p2!!,
+                        rectPath[0],
+                        rectPath[3],
+                        true
                     )
                 ) {
                     getIntersectPt(p, p2, rectPath[0], rectPath[3], ip!!)

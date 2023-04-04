@@ -4,8 +4,6 @@ import clipper2.Minkowski
 import clipper2.clipper32.core.*
 import clipper2.clipper32.engine.PolyPath32
 import clipper2.clipper32.engine.PolyTree32
-import clipper2.rectClip.RectClip
-import clipper2.rectClip.RectClipLines
 import clipper2.core.*
 import clipper2.engine.Clipper64
 import clipper2.engine.ClipperD
@@ -17,6 +15,8 @@ import clipper2.engine.PolyTreeD
 import clipper2.offset.ClipperOffset
 import clipper2.offset.EndType
 import clipper2.offset.JoinType
+import clipper2.rectClip.RectClip
+import clipper2.rectClip.RectClipLines
 import kotlin.math.PI
 import kotlin.math.ceil
 import kotlin.math.cos
@@ -657,7 +657,7 @@ object Clipper {
 
     // Unlike ScalePath, both ScalePath64 & ScalePathD also involve type conversion
     fun scalePath64(path: PathD, scale: Double): Path64 {
-        val res = Path64() //path.size
+        val res = Path64() // path.size
         for (pt in path) {
             res.add(Point64(pt, scale))
         }
@@ -665,7 +665,7 @@ object Clipper {
     }
 
     fun scalePaths64(paths: PathsD, scale: Double): Paths64 {
-        val res = Paths64() //paths.size
+        val res = Paths64() // paths.size
         for (path in paths) {
             res.add(scalePath64(path, scale))
         }
@@ -673,7 +673,7 @@ object Clipper {
     }
 
     fun scalePathD(path: Path64, scale: Double): PathD {
-        val res = PathD() //path.size
+        val res = PathD() // path.size
         for (pt in path) {
             res.add(PointD(pt, scale))
         }
@@ -681,7 +681,7 @@ object Clipper {
     }
 
     fun scalePathsD(paths: Paths64, scale: Double): PathsD {
-        val res = PathsD() //paths.size
+        val res = PathsD() // paths.size
         for (path in paths) {
             res.add(scalePathD(path, scale))
         }
@@ -689,7 +689,7 @@ object Clipper {
     }
 
     fun translatePath(path: Path64, dx: Long, dy: Long): Path64 {
-        val result = Path64() //path.size
+        val result = Path64() // path.size
         for (pt in path) {
             result.add(Point64(pt.x + dx, pt.y + dy))
         }
@@ -697,7 +697,7 @@ object Clipper {
     }
 
     fun translatePaths(paths: Paths64, dx: Long, dy: Long): Paths64 {
-        val result = Paths64() //paths.size
+        val result = Paths64() // paths.size
         for (path in paths) {
             result.add(offsetPath(path, dx, dy))
         }
@@ -705,7 +705,7 @@ object Clipper {
     }
 
     fun translatePath(path: PathD, dx: Double, dy: Double): PathD {
-        val result = PathD() //path.size
+        val result = PathD() // path.size
         for (pt in path) {
             result.add(PointD(pt.x + dx, pt.y + dy))
         }
@@ -713,7 +713,7 @@ object Clipper {
     }
 
     fun translatePaths(paths: PathsD, dx: Double, dy: Double): PathsD {
-        val result = PathsD() //paths.size
+        val result = PathsD() // paths.size
         for (path in paths) {
             result.add(translatePath(path, dx, dy))
         }
@@ -736,7 +736,7 @@ object Clipper {
     }
 
     fun reversePaths(paths: Paths64): Paths64 {
-        val result = Paths64() //paths.size
+        val result = Paths64() // paths.size
         for (t in paths) {
             result.add(reversePath(t))
         }
@@ -744,7 +744,7 @@ object Clipper {
     }
 
     fun reversePaths(paths: PathsD): PathsD {
-        val result = PathsD() //paths.size
+        val result = PathsD() // paths.size
         for (path in paths) {
             result.add(reversePath(path))
         }
@@ -873,7 +873,7 @@ object Clipper {
 
     fun makePath(arr: IntArray): Path64 {
         val len = arr.size / 2
-        val p = Path64() //len
+        val p = Path64() // len
         for (i in 0 until len) {
             p.add(Point64(arr[i * 2].toLong(), arr[i * 2 + 1].toLong()))
         }
@@ -882,7 +882,7 @@ object Clipper {
 
     fun makePath(arr: LongArray): Path64 {
         val len = arr.size / 2
-        val p = Path64() //len
+        val p = Path64() // len
         for (i in 0 until len) {
             p.add(Point64(arr[i * 2], arr[i * 2 + 1]))
         }
@@ -891,7 +891,7 @@ object Clipper {
 
     fun makePath(arr: DoubleArray): PathD {
         val len = arr.size / 2
-        val p = PathD() //len
+        val p = PathD() // len
         for (i in 0 until len) {
             p.add(PointD(arr[i * 2], arr[i * 2 + 1]))
         }
@@ -908,7 +908,7 @@ object Clipper {
 
     fun stripNearDuplicates(path: PathD, minEdgeLenSqrd: Double, isClosedPath: Boolean): PathD {
         val cnt = path.size
-        val result = PathD() //cnt
+        val result = PathD() // cnt
         if (cnt == 0) {
             return result
         }
@@ -928,7 +928,7 @@ object Clipper {
 
     fun stripDuplicates(path: Path64, isClosedPath: Boolean): Path64 {
         val cnt = path.size
-        val result = Path64() //cnt
+        val result = Path64() // cnt
         if (cnt == 0) {
             return result
         }
@@ -948,7 +948,7 @@ object Clipper {
 
     fun stripDuplicates(path: Path32, isClosedPath: Boolean): Path32 {
         val cnt = path.size
-        val result = Path32() //cnt
+        val result = Path32() // cnt
         if (cnt == 0) {
             return result
         }
@@ -1037,7 +1037,9 @@ object Clipper {
         val d = line2.y - line1.y
         return if (c == 0.0 && d == 0.0) {
             0.0
-        } else sqr(a * d - c * b) / (c * c + d * d)
+        } else {
+            sqr(a * d - c * b) / (c * c + d * d)
+        }
     }
 
     fun perpendicDistFromLineSqrd(pt: Point64, line1: Point64, line2: Point64): Double {
@@ -1047,7 +1049,9 @@ object Clipper {
         val d = line2.y.toDouble() - line1.y
         return if (c == 0.0 && d == 0.0) {
             0.0
-        } else sqr(a * d - c * b) / (c * c + d * d)
+        } else {
+            sqr(a * d - c * b) / (c * c + d * d)
+        }
     }
 
     fun perpendicDistFromLineSqrd(pt: Point32, line1: Point32, line2: Point32): Double {
@@ -1057,7 +1061,9 @@ object Clipper {
         val d = line2.y.toDouble() - line1.y
         return if (c == 0.0 && d == 0.0) {
             0.0
-        } else sqr(a * d - c * b) / (c * c + d * d)
+        } else {
+            sqr(a * d - c * b) / (c * c + d * d)
+        }
     }
 
     fun rdp(path: Path64, begin: Int, end: Int, epsSqrd: Double, flags: MutableList<Boolean>) {
@@ -1112,11 +1118,11 @@ object Clipper {
         if (len < 5) {
             return path
         }
-        val flags: MutableList<Boolean> = MutableList<Boolean>(len) {false}
+        val flags: MutableList<Boolean> = MutableList<Boolean>(len) { false }
         flags[0] = true
         flags[len - 1] = true
         rdp(path, 0, len - 1, sqr(epsilon), flags)
-        val result = Path64() //len
+        val result = Path64() // len
         for (i in 0 until len) {
             if (flags[i]) {
                 result.add(path[i])
@@ -1145,7 +1151,7 @@ object Clipper {
      * @return
      */
     fun ramerDouglasPeucker(paths: Paths64, epsilon: Double): Paths64 {
-        val result = Paths64() //paths.size
+        val result = Paths64() // paths.size
         for (path in paths) {
             result.add(ramerDouglasPeuckerPath(path, epsilon))
         }
@@ -1185,11 +1191,11 @@ object Clipper {
         if (len < 5) {
             return path
         }
-        val flags: MutableList<Boolean> = MutableList<Boolean>(len) {false}
+        val flags: MutableList<Boolean> = MutableList<Boolean>(len) { false }
         flags[0] = true
         flags[len - 1] = true
         rdp(path, 0, len - 1, sqr(epsilon), flags)
-        val result = PathD() //len
+        val result = PathD() // len
         for (i in 0 until len) {
             if (flags[i]) {
                 result.add(path[i])
@@ -1199,7 +1205,7 @@ object Clipper {
     }
 
     fun ramerDouglasPeucker(paths: PathsD, epsilon: Double): PathsD {
-        val result = PathsD() //paths.size
+        val result = PathsD() // paths.size
         for (path in paths) {
             result.add(ramerDouglasPeucker(path, epsilon))
         }
@@ -1271,21 +1277,21 @@ object Clipper {
             if (dsq[curr] > epsSqr) {
                 start = curr
                 do {
-                    curr = getNext(curr, high,  /* ref */flags)
+                    curr = getNext(curr, high, /* ref */flags)
                 } while (curr != start && dsq[curr] > epsSqr)
                 if (curr == start) {
                     break
                 }
             }
-            prev = getPrior(curr, high,  /* ref */flags)
-            next = getNext(curr, high,  /* ref */flags)
+            prev = getPrior(curr, high, /* ref */flags)
+            next = getNext(curr, high, /* ref */flags)
             if (next == prev) {
                 break
             }
             if (dsq[next] < dsq[curr]) {
                 flags[next] = true
-                next = getNext(next, high,  /* ref */flags)
-                next2 = getNext(next, high,  /* ref */flags)
+                next = getNext(next, high, /* ref */flags)
+                next2 = getNext(next, high, /* ref */flags)
                 dsq[curr] = perpendicDistFromLineSqrd(path[curr], path[prev], path[next])
                 if (next != high || !isOpenPath) {
                     dsq[next] = perpendicDistFromLineSqrd(path[next], path[curr], path[next2])
@@ -1294,15 +1300,15 @@ object Clipper {
             } else {
                 flags[curr] = true
                 curr = next
-                next = getNext(next, high,  /* ref */flags)
-                prior2 = getPrior(prev, high,  /* ref */flags)
+                next = getNext(next, high, /* ref */flags)
+                prior2 = getPrior(prev, high, /* ref */flags)
                 dsq[curr] = perpendicDistFromLineSqrd(path[curr], path[prev], path[next])
                 if (prev != 0 || !isOpenPath) {
                     dsq[prev] = perpendicDistFromLineSqrd(path[prev], path[prior2], path[curr])
                 }
             }
         }
-        val result = Path64() //len
+        val result = Path64() // len
         for (i in 0 until len) {
             if (!flags[i]) {
                 result.add(path[i])
@@ -1312,7 +1318,7 @@ object Clipper {
     }
 
     fun simplifyPaths(paths: Paths64, epsilon: Double, isOpenPath: Boolean = false): Paths64 {
-        val result = Paths64() //paths.size
+        val result = Paths64() // paths.size
         for (path in paths) {
             result.add(simplifyPath(path, epsilon, isOpenPath))
         }
@@ -1348,21 +1354,21 @@ object Clipper {
             if (dsq[curr] > epsSqr) {
                 start = curr
                 do {
-                    curr = getNext(curr, high,  /* ref */flags)
+                    curr = getNext(curr, high, /* ref */flags)
                 } while (curr != start && dsq[curr] > epsSqr)
                 if (curr == start) {
                     break
                 }
             }
-            prev = getPrior(curr, high,  /* ref */flags)
-            next = getNext(curr, high,  /* ref */flags)
+            prev = getPrior(curr, high, /* ref */flags)
+            next = getNext(curr, high, /* ref */flags)
             if (next == prev) {
                 break
             }
             if (dsq[next] < dsq[curr]) {
                 flags[next] = true
-                next = getNext(next, high,  /* ref */flags)
-                next2 = getNext(next, high,  /* ref */flags)
+                next = getNext(next, high, /* ref */flags)
+                next2 = getNext(next, high, /* ref */flags)
                 dsq[curr] = perpendicDistFromLineSqrd(path[curr], path[prev], path[next])
                 if (next != high || !isOpenPath) {
                     dsq[next] = perpendicDistFromLineSqrd(path[next], path[curr], path[next2])
@@ -1371,15 +1377,15 @@ object Clipper {
             } else {
                 flags[curr] = true
                 curr = next
-                next = getNext(next, high,  /* ref */flags)
-                prior2 = getPrior(prev, high,  /* ref */flags)
+                next = getNext(next, high, /* ref */flags)
+                prior2 = getPrior(prev, high, /* ref */flags)
                 dsq[curr] = perpendicDistFromLineSqrd(path[curr], path[prev], path[next])
                 if (prev != 0 || !isOpenPath) {
                     dsq[prev] = perpendicDistFromLineSqrd(path[prev], path[prior2], path[curr])
                 }
             }
         }
-        val result = PathD() //len
+        val result = PathD() // len
         for (i in 0 until len) {
             if (!flags[i]) {
                 result.add(path[i])
@@ -1389,7 +1395,7 @@ object Clipper {
     }
 
     fun simplifyPaths(paths: PathsD, epsilon: Double, isOpenPath: Boolean = false): PathsD {
-        val result = PathsD() //paths.size
+        val result = PathsD() // paths.size
         for (path in paths) {
             result.add(simplifyPath(path, epsilon, isOpenPath))
         }
@@ -1420,9 +1426,11 @@ object Clipper {
         if (len - i < 3) {
             return if (!isOpen || len < 2 || path[0].equals(path[1])) {
                 Path64()
-            } else path
+            } else {
+                path
+            }
         }
-        val result = Path64() //len - i
+        val result = Path64() // len - i
         var last = path[i]
         result.add(last)
         i++
@@ -1440,8 +1448,8 @@ object Clipper {
         } else if (InternalClipper.crossProduct(last, path[len - 1], result[0]) != 0.0) {
             result.add(path[len - 1])
         } else {
-            while (result.size > 2
-                && InternalClipper.crossProduct(result[result.size - 1], result[result.size - 2], result[0]) == 0.0
+            while (result.size > 2 &&
+                InternalClipper.crossProduct(result[result.size - 1], result[result.size - 2], result[0]) == 0.0
             ) {
                 result.removeAt(result.size - 1)
             }
@@ -1506,7 +1514,7 @@ object Clipper {
         val co: Double = cos(2 * PI / steps)
         var dx = co
         var dy = si
-        val result = Path64() //steps
+        val result = Path64() // steps
         result.add(Point64(center.x + radiusX, center.x.toDouble()))
         for (i in 1 until steps) {
             result.add(Point64(center.x + radiusX * dx, center.y + radiusY * dy))
@@ -1533,7 +1541,7 @@ object Clipper {
         val co: Double = cos(2 * PI / steps)
         var dx = co
         var dy = si
-        val result = Path32() //steps
+        val result = Path32() // steps
         result.add(Point32(center.x + radiusX, center.x.toDouble()))
         for (i in 1 until steps) {
             result.add(Point32(center.x + radiusX * dx, center.y + radiusY * dy))
@@ -1560,7 +1568,7 @@ object Clipper {
         val co: Double = cos(2 * PI / steps)
         var dx = co
         var dy = si
-        val result = PathD() //steps
+        val result = PathD() // steps
         result.add(PointD(center.x + radiusX, center.y))
         for (i in 1 until steps) {
             result.add(PointD(center.x + radiusX * dx, center.y + radiusY * dy))

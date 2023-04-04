@@ -49,9 +49,9 @@ object Minkowski {
         val delta = if (isClosed) 0 else 1
         val patLen: Int = pattern.size
         val pathLen: Int = path.size
-        val tmp = Paths64()//new Paths64(pathLen);
+        val tmp = Paths64() // new Paths64(pathLen);
         for (pathPt in path) {
-            val path2 = Path64() //new Path64(patLen);
+            val path2 = Path64() // new Path64(patLen);
             if (isSum) {
                 for (basePt in pattern) {
                     path2.add(Point64.opAdd(pathPt, basePt))

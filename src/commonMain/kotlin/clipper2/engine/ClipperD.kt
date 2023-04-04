@@ -14,7 +14,6 @@ import kotlin.js.JsName
 import kotlin.jvm.JvmOverloads
 import kotlin.math.pow
 
-
 /**
  * The ClipperD class performs boolean 'clipping'. This class is very similar to
  * Clipper64 except that coordinates passed to ClipperD objects are of type

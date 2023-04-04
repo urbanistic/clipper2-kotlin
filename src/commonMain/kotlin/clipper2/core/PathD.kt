@@ -22,20 +22,20 @@ public class PathD : MutableList<PointD> by mutableListOf() {
         return bld.toString()
     }
 
-    public fun asArray(): Array<PointD>{
+    public fun asArray(): Array<PointD> {
         return this.toTypedArray()
     }
 
-    companion object{
-        public fun of(vararg elements: PointD): PathD{
+    companion object {
+        public fun of(vararg elements: PointD): PathD {
             val path = PathD()
             path.addAll(elements)
             return path
             // return mutableListOf<PointD>(*elements) as PathD
         }
 
-        public fun ofPath64(path: Path64): PathD{
-            val result = PathD() //path.size
+        public fun ofPath64(path: Path64): PathD {
+            val result = PathD() // path.size
             for (pt in path) {
                 result.add(PointD(pt))
             }

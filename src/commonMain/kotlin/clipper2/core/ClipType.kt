@@ -2,7 +2,6 @@ package clipper2.core
 
 import kotlin.js.JsExport
 
-
 /**
  * All polygon clipping is performed with a Clipper object with the specific
  * boolean operation indicated by the ClipType parameter passed in its Execute

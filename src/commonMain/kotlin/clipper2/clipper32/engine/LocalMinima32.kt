@@ -2,7 +2,6 @@ package clipper2.clipper32.engine
 
 import clipper2.core.PathType
 
-
 class LocalMinima32 {
     var vertex: ClipperBase32.Vertex? = null
     var polytype: PathType? = PathType.Subject

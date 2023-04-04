@@ -1,9 +1,7 @@
 package clipper2
 
 import Clipper
-import clipper2.clipper32.core.Paths32
 import clipper2.core.Paths64
-import clipper2.clipper32.engine.Clipper32
 import clipper2.engine.Clipper64
 import kotlin.math.abs
 import kotlin.test.Test
@@ -11,7 +9,7 @@ import kotlin.test.assertTrue
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTime
 
-//class MyPolygonTests : FunSpec(){
+// class MyPolygonTests : FunSpec(){
 //    var counter = 0
 //    val data = ClipperFileIO.loadTestCases("Polygons.txt").associateBy { it: ClipperFileIO.TestCase -> it.caption ?: ("PolygonsTest:" + counter++) }
 //
@@ -24,9 +22,9 @@ import kotlin.time.measureTime
 //            runPolygonsTestCaseKotest(it)
 //        }
 //    }
-//}
+// }
 
-//fun runPolygonsTestCaseKotest(test: ClipperFileIO.TestCase) {
+// fun runPolygonsTestCaseKotest(test: ClipperFileIO.TestCase) {
 //    print(test.testNum)
 //
 //    val c64 = Clipper64()
@@ -85,10 +83,10 @@ import kotlin.time.measureTime
 //            (areaDiffRatio <= 0.01) shouldBe true
 //        }
 //    }
-//}
+// }
 
 public class TestPolygons {
-    val iterations = 8
+    val iterations = 1
 
     @OptIn(ExperimentalTime::class)
     @Test
@@ -118,7 +116,7 @@ public class TestPolygons {
     }
 
     private fun runPolygonsTestCase(test: ClipperFileIO.TestCase) {
-        //print(test.testNum)
+        // print(test.testNum)
 
         val c64 = Clipper64()
         val solution = Paths64()

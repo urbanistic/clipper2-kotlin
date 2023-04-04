@@ -1,9 +1,7 @@
 package clipper2
 
 import Clipper
-import clipper2.clipper32.core.Paths32
 import clipper2.core.Paths64
-import clipper2.clipper32.engine.Clipper32
 import clipper2.engine.Clipper64
 import kotlin.math.abs
 import kotlin.test.Test
@@ -12,7 +10,7 @@ import kotlin.test.assertTrue
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTime
 
-//class MyLineTests : FunSpec() {
+// class MyLineTests : FunSpec() {
 //    var counter = 0
 //    val data = loadTestCases("Lines.txt").associateBy { it: ClipperFileIO.TestCase -> it.caption ?: ("LinesTest:" + counter++) }
 //
@@ -23,9 +21,9 @@ import kotlin.time.measureTime
 //            runLinesTestCaseKotest(it)
 //        }
 //    }
-//}
+// }
 
-//fun runLinesTestCaseKotest(test: ClipperFileIO.TestCase) {
+// fun runLinesTestCaseKotest(test: ClipperFileIO.TestCase) {
 //    val c64 = Clipper64()
 //    val solution = Paths64()
 //    val solution_open = Paths64()
@@ -40,7 +38,7 @@ import kotlin.time.measureTime
 //    if (test.count > 0 && abs(solution.size - test.count) > 0) {
 //        (abs(solution.size - test.count) < 2) shouldBe true // "Vertex count incorrect. Difference=${solution.size - test.count()}"
 //    }
-//}
+// }
 
 public class TestLines {
     val iterations = 1
@@ -60,10 +58,10 @@ public class TestLines {
             dataMap[label] = testcase
         }
 
-        for(test in dataMap){
+        for (test in dataMap) {
             print("${test.key} ${test.value.clipType} ${test.value.fillRule}")
             val time = measureTime {
-                for(i in 0 until iterations) {
+                for (i in 0 until iterations) {
                     runLinesTestCase(test.value)
                 }
             }

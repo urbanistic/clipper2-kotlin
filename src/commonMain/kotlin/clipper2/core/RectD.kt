@@ -8,7 +8,7 @@ import kotlin.math.min
 @JsExport
 public class RectD(var left: Double, var top: Double, var right: Double, var bottom: Double) {
 
-    init{
+    init {
         if (right < left || bottom < top) {
             throw IllegalArgumentException(InvalidRect)
         }
@@ -21,7 +21,7 @@ public class RectD(var left: Double, var top: Double, var right: Double, var bot
     constructor(rec: RectD) : this(rec.left, rec.top, rec.right, rec.bottom)
 
     @JsName("ofValid")
-    constructor(isValid: Boolean) : this(){
+    constructor(isValid: Boolean) : this() {
         if (isValid) {
             left = 0.0
             top = 0.0
@@ -66,7 +66,7 @@ public class RectD(var left: Double, var top: Double, var right: Double, var bot
 
     fun intersects(rec: RectD): Boolean {
         return max(left, rec.left) < min(right, rec.right) &&
-                max(top, rec.top) < min(bottom, rec.bottom)
+            max(top, rec.top) < min(bottom, rec.bottom)
     }
 
     fun asPath(): PathD {

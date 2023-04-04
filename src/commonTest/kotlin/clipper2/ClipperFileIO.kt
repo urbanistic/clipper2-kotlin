@@ -5,14 +5,9 @@ import clipper2.clipper32.core.Paths32
 import clipper2.clipper32.core.Point32
 import clipper2.core.*
 
-///** Read the resource as Strings. */
-//expect fun readStringResource(
-//    resourceName: String
-//): List<String>
-
 object ClipperFileIO {
     fun loadTestCases(testFileName: String): List<TestCase> {
-        //var lines: MutableList<String> = readStringResource(testFileName).toMutableList() // MutableList<String> = Files.readAllLines(Paths.get(String.format("src/test/resources/%s", testFileName)))
+        // var lines: MutableList<String> = readStringResource(testFileName).toMutableList() // MutableList<String> = Files.readAllLines(Paths.get(String.format("src/test/resources/%s", testFileName)))
         val str = testTextMap[testFileName] ?: return listOf()
         val lines = str.lines().toMutableList()
 
@@ -99,19 +94,19 @@ object ClipperFileIO {
                 GetIdx = 3
                 continue
             } else {
-//				continue;
+// 				continue;
             }
             val paths = PathFromStr(s) // 0 or 1 path
             if (paths.isNullOrEmpty()) {
                 if (GetIdx == 3) {
-//					return result;
+// 					return result;
                 }
                 if (s.indexOf("SUBJECTS_OPEN") == 0) {
                     GetIdx = 2
                 } else if (s.indexOf("CLIPS") == 0) {
                     GetIdx = 3
                 } else {
-//					return result;
+// 					return result;
                 }
                 continue
             }
@@ -127,7 +122,7 @@ object ClipperFileIO {
     }
 
     fun loadTestCases32(testFileName: String): List<TestCase32> {
-        //var lines: MutableList<String> = readStringResource(testFileName).toMutableList() // MutableList<String> = Files.readAllLines(Paths.get(String.format("src/test/resources/%s", testFileName)))
+        // var lines: MutableList<String> = readStringResource(testFileName).toMutableList() // MutableList<String> = Files.readAllLines(Paths.get(String.format("src/test/resources/%s", testFileName)))
         val str = testTextMap[testFileName] ?: return listOf()
         val lines = str.lines().toMutableList()
 
@@ -214,19 +209,19 @@ object ClipperFileIO {
                 GetIdx = 3
                 continue
             } else {
-//				continue;
+// 				continue;
             }
             val paths = Path32FromStr(s) // 0 or 1 path
             if (paths.isNullOrEmpty()) {
                 if (GetIdx == 3) {
-//					return result;
+// 					return result;
                 }
                 if (s.indexOf("SUBJECTS_OPEN") == 0) {
                     GetIdx = 2
                 } else if (s.indexOf("CLIPS") == 0) {
                     GetIdx = 3
                 } else {
-//					return result;
+// 					return result;
                 }
                 continue
             }
@@ -437,15 +432,15 @@ object ClipperFileIO {
     )
 
     class TestCase32(
-            val caption: String?,
-            val clipType: ClipType?,
-            val fillRule: FillRule?,
-            val area: Long,
-            val count: Int,
-            val GetIdx: Int,
-            val subj: Paths32,
-            val subj_open: Paths32,
-            val clip: Paths32,
-            val testNum: Int
+        val caption: String?,
+        val clipType: ClipType?,
+        val fillRule: FillRule?,
+        val area: Long,
+        val count: Int,
+        val GetIdx: Int,
+        val subj: Paths32,
+        val subj_open: Paths32,
+        val clip: Paths32,
+        val testNum: Int
     )
 }

@@ -2,17 +2,14 @@ package clipper2.clipper32.offset
 
 import clipper2.clipper32.core.Path32
 import clipper2.clipper32.core.Paths32
-import clipper2.core.Path64
-import clipper2.core.Paths64
 import clipper2.offset.EndType
 import clipper2.offset.JoinType
 import kotlin.jvm.JvmOverloads
 
-
 internal class Group32 @JvmOverloads constructor(
-        paths: Paths32,
-        joinType: JoinType,
-        endType: EndType = EndType.Polygon
+    paths: Paths32,
+    joinType: JoinType,
+    endType: EndType = EndType.Polygon
 ) {
     var inPaths: Paths32
     var outPath: Path32
@@ -22,7 +19,7 @@ internal class Group32 @JvmOverloads constructor(
     var pathsReversed: Boolean
 
     init {
-        inPaths = Paths32.of(paths) //paths
+        inPaths = Paths32.of(paths) // paths
         this.joinType = joinType
         this.endType = endType
         outPath = Path32()

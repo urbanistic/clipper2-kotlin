@@ -10,6 +10,7 @@ import clipper2.engine.Clipper64
 import clipper2.engine.PointInPolygonResult
 import clipper2.engine.PolyPath64
 import clipper2.engine.PolyTree64
+import tangible.RefObject
 import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -18,9 +19,8 @@ import kotlin.test.assertTrue
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTime
-import tangible.RefObject
 
-//class MyPolytreeTests : FunSpec() {
+// class MyPolytreeTests : FunSpec() {
 //    var counter = 0
 //    val data = ClipperFileIO.loadTestCases("PolytreeHoleOwner2.txt")
 //    val dataMap = mutableMapOf<String, ClipperFileIO.TestCase>()
@@ -40,9 +40,9 @@ import tangible.RefObject
 //            runPolytreesTestCaseKotest(it)
 //        }
 //    }
-//}
+// }
 
-//fun runPolytreesTestCaseKotest(test: ClipperFileIO.TestCase) {
+// fun runPolytreesTestCaseKotest(test: ClipperFileIO.TestCase) {
 //    val solutionTree = PolyTree64()
 //    val solution_open = Paths64()
 //    val clipper = Clipper64()
@@ -89,9 +89,9 @@ import tangible.RefObject
 //    for (pt in pointsOfInterestInside) {
 //        polytreeContainsPointKotest(solutionTree, pt) shouldBe true // "The polytree indicates it does not contain a point that it should contain"
 //    }
-//}
+// }
 //
-//private fun checkPolytreeFullyContainsChildren(polytree: PolyTree64): Boolean {
+// private fun checkPolytreeFullyContainsChildren(polytree: PolyTree64): Boolean {
 //    for (p in polytree) {
 //        val child = p as PolyPath64
 //        if (child.count > 0 && !polyPathFullyContainsChildren(child)) {
@@ -99,9 +99,9 @@ import tangible.RefObject
 //        }
 //    }
 //    return true
-//}
+// }
 //
-//private fun polyPathFullyContainsChildren(pp: PolyPath64): Boolean {
+// private fun polyPathFullyContainsChildren(pp: PolyPath64): Boolean {
 //    for (c in pp) {
 //        val child = c as PolyPath64
 //        for (pt in child.polygon!!) {
@@ -114,9 +114,9 @@ import tangible.RefObject
 //        }
 //    }
 //    return true
-//}
+// }
 //
-//fun polytreeContainsPointKotest(pp: PolyTree64, pt: Point64): Boolean {
+// fun polytreeContainsPointKotest(pp: PolyTree64, pt: Point64): Boolean {
 //    var counter = 0
 //    for (i in 0 until pp.count) {
 //        val child: PolyPath64 = pp.get(i)
@@ -126,9 +126,9 @@ import tangible.RefObject
 //    }
 //    (counter >= 0) shouldBe true // "Polytree has too many holes"
 //    return counter != 0
-//}
+// }
 //
-//fun PolyPathContainsPointKotest(pp: PolyPath64, pt: Point64, counter: RefObject<Int>) {
+// fun PolyPathContainsPointKotest(pp: PolyPath64, pt: Point64, counter: RefObject<Int>) {
 //    if (pointInPolygon(pt, pp.polygon) !== PointInPolygonResult.IsOutside) {
 //        if (pp.isHole) {
 //            counter.argValue = counter.argValue!! - 1
@@ -140,7 +140,7 @@ import tangible.RefObject
 //        val child = pp[i]
 //        PolyPathContainsPointKotest(child, pt, counter)
 //    }
-//}
+// }
 
 public class TestPolytrees {
     var pointInPolygonTotalCheckTime: Duration = Duration.ZERO
@@ -231,7 +231,7 @@ public class TestPolytrees {
         }
         println("calculating area in $time")
 
-        //CHECKS
+        // CHECKS
         assertTrue(a1 > 330000, "solution has wrong area - value expected: 331,052; value returned; $a1 ")
         assertTrue(abs(a1 - a2) < 0.0001, "solution tree has wrong area - value expected: $a1; value returned; $a2 ")
         time = measureTime {
@@ -240,7 +240,7 @@ public class TestPolytrees {
                 "The polytree doesn't properly contain its children"
             )
         }
-        println("checktime per point: ${pointInPolygonTotalCheckTime / pointInPolygonNumChecks} = time(${pointInPolygonTotalCheckTime})/point($pointInPolygonNumChecks)")
+        println("checktime per point: ${pointInPolygonTotalCheckTime / pointInPolygonNumChecks} = time($pointInPolygonTotalCheckTime)/point($pointInPolygonNumChecks)")
         println("checkPolytreeFullyContainsChildren in $time")
 
         for (pt in pointsOfInterestOutside) {
@@ -304,7 +304,7 @@ public class TestPolytrees {
                 return false
             }
         }
-        //println("${totalTime / totalPointChecks} = time(${totalTime})/point($totalPointChecks)")
+        // println("${totalTime / totalPointChecks} = time(${totalTime})/point($totalPointChecks)")
         return true
     }
 
@@ -334,4 +334,3 @@ public class TestPolytrees {
         }
     }
 }
-

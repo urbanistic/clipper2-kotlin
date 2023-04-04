@@ -12,7 +12,7 @@ object InternalClipper {
     const val DEFAULT_ARC_TOLERANCE = 0.25
     private const val FLOATING_POINT_TOLERANCE = 1E-12
 
-    //	private static final double DEFAULT_MIN_EDGE_LENGTH = 0.1;
+    // 	private static final double DEFAULT_MIN_EDGE_LENGTH = 0.1;
     private const val PRECISION_RANGE_ERROR = "Error: Precision is out of range."
 
     fun checkPrecision(precision: Int) {
@@ -50,7 +50,10 @@ object InternalClipper {
     }
 
     fun getIntersectPt(
-        ln1a: Point64, ln1b: Point64, ln2a: Point64, ln2b: Point64,  /* out */
+        ln1a: Point64,
+        ln1b: Point64,
+        ln2a: Point64,
+        ln2b: Point64, /* out */
         ip: Point64
     ): Boolean {
         val dy1 = (ln1b.y - ln1a.y).toDouble()
@@ -69,7 +72,10 @@ object InternalClipper {
     }
 
     fun getIntersectPoint(
-        ln1a: Point64, ln1b: Point64, ln2a: Point64, ln2b: Point64,  /* out */
+        ln1a: Point64,
+        ln1b: Point64,
+        ln2a: Point64,
+        ln2b: Point64, /* out */
         ip: PointD
     ): Boolean {
         val dy1 = (ln1b.y - ln1a.y).toDouble()
@@ -104,7 +110,9 @@ object InternalClipper {
             val res4 = crossProduct(seg2b, seg1a, seg1b)
             if (res3 * res4 > 0) {
                 false
-            } else res1 != 0.0 || res2 != 0.0 || res3 != 0.0 || res4 != 0.0
+            } else {
+                res1 != 0.0 || res2 != 0.0 || res3 != 0.0 || res4 != 0.0
+            }
             // ensure NOT collinear
         } else {
             crossProduct(seg1a, seg2a, seg2b) * crossProduct(seg1b, seg2a, seg2b) < 0 && crossProduct(
@@ -221,6 +229,8 @@ object InternalClipper {
         }
         return if (v == 0) {
             PointInPolygonResult.IsOutside
-        } else PointInPolygonResult.IsInside
+        } else {
+            PointInPolygonResult.IsInside
+        }
     }
 }

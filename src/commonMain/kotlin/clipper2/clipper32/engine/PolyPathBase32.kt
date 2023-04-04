@@ -7,7 +7,7 @@ import kotlin.js.JsExport
 abstract class PolyPathBase32(var parent: PolyPathBase32? = null) : Iterable<PolyPathBase32?> {
     var children: MutableList<PolyPathBase32> = mutableListOf()
 
-    fun childrenAsArray(): Array<PolyPathBase32>{
+    fun childrenAsArray(): Array<PolyPathBase32> {
         return children.toTypedArray()
     }
 

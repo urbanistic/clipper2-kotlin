@@ -7,7 +7,6 @@ import kotlin.js.JsExport
 import kotlin.js.JsName
 import kotlin.jvm.JvmOverloads
 
-
 /**
  * The Clipper class performs boolean 'clipping'. This class is very similar to
  * ClipperD except that coordinates passed to Clipper64 objects are of type
