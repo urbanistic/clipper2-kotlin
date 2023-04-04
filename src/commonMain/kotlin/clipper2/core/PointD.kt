@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package clipper2.core
 
 import kotlin.js.JsExport
@@ -8,7 +10,7 @@ import kotlin.js.JsName
  * A series of these coordinates forms a PathD structure.
  */
 @JsExport
-public class PointD(var x: Double = 0.0, var y: Double = 0.0) {
+class PointD(var x: Double = 0.0, var y: Double = 0.0) {
 
     @JsName("zero")
     constructor() : this(0.0, 0.0)

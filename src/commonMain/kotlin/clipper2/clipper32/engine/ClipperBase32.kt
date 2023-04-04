@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package clipper2.clipper32.engine
 
 import Clipper.perpendicDistFromLineSqrd
@@ -1042,18 +1044,18 @@ abstract class ClipperBase32 protected constructor() {
             val e2Wc2: Int
             when (fillrule) {
                 FillRule.Positive -> {
-                    e1Wc2 = ae1.windCount2.toInt()
-                    e2Wc2 = ae2.windCount2.toInt()
+                    e1Wc2 = ae1.windCount2
+                    e2Wc2 = ae2.windCount2
                 }
 
                 FillRule.Negative -> {
-                    e1Wc2 = -ae1.windCount2.toInt()
-                    e2Wc2 = -ae2.windCount2.toInt()
+                    e1Wc2 = -ae1.windCount2
+                    e2Wc2 = -ae2.windCount2
                 }
 
                 else -> {
-                    e1Wc2 = abs(ae1.windCount2).toInt()
-                    e2Wc2 = abs(ae2.windCount2).toInt()
+                    e1Wc2 = abs(ae1.windCount2)
+                    e2Wc2 = abs(ae2.windCount2)
                 }
             }
             if (!isSamePolyType(ae1, ae2)) {

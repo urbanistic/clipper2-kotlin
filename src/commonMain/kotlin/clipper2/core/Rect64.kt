@@ -1,12 +1,12 @@
+@file:Suppress("unused")
+
 package clipper2.core
 
-import kotlin.js.JsExport
 import kotlin.js.JsName
 import kotlin.math.max
 import kotlin.math.min
 
-@JsExport
-public class Rect64(var left: Long, var top: Long, var right: Long, var bottom: Long) {
+class Rect64(var left: Long, var top: Long, var right: Long, var bottom: Long) {
 
     init {
         if (right < left || bottom < top) {

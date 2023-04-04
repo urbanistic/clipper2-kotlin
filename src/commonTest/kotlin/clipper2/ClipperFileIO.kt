@@ -97,7 +97,7 @@ object ClipperFileIO {
 // 				continue;
             }
             val paths = PathFromStr(s) // 0 or 1 path
-            if (paths.isNullOrEmpty()) {
+            if (paths.isEmpty()) {
                 if (GetIdx == 3) {
 // 					return result;
                 }
@@ -212,7 +212,7 @@ object ClipperFileIO {
 // 				continue;
             }
             val paths = Path32FromStr(s) // 0 or 1 path
-            if (paths.isNullOrEmpty()) {
+            if (paths.isEmpty()) {
                 if (GetIdx == 3) {
 // 					return result;
                 }

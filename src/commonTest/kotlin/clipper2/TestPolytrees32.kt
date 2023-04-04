@@ -20,7 +20,7 @@ import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTime
 
-public class TestPolytrees32 {
+class TestPolytrees32 {
     var pointInPolygonTotalCheckTime: Duration = Duration.ZERO
     var pointInPolygonNumChecks: Int = 0
 

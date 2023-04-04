@@ -17,7 +17,7 @@ import kotlin.math.roundToLong
  * internally (using user specified scaling).
  */
 @JsExport
-public class Point64(var x: Long, var y: Long) {
+class Point64(var x: Long, var y: Long) {
 
     @JsName("zero")
     constructor() : this(0, 0)

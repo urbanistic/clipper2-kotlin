@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package clipper2.clipper32.core
 
 import clipper2.core.PointD
@@ -18,7 +20,7 @@ import kotlin.math.roundToInt
  * internally (using user specified scaling).
  */
 @JsExport
-public class Point32(var x: Int, var y: Int) {
+class Point32(var x: Int, var y: Int) {
 
     @JsName("zero")
     constructor() : this(0, 0)

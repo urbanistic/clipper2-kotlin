@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package clipper2.core
 
 import kotlin.js.JsExport
@@ -6,7 +8,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 @JsExport
-public class RectD(var left: Double, var top: Double, var right: Double, var bottom: Double) {
+class RectD(var left: Double, var top: Double, var right: Double, var bottom: Double) {
 
     init {
         if (right < left || bottom < top) {

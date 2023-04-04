@@ -12,9 +12,9 @@ import kotlin.js.JsExport
  * clockwise, or arranged counter-clockwise).
  */
 @JsExport
-public class PathD : MutableList<PointD> by mutableListOf() {
+class PathD : MutableList<PointD> by mutableListOf() {
 
-    public override fun toString(): String {
+    override fun toString(): String {
         val bld: StringBuilder = StringBuilder()
         for (pt in this) {
             bld.append(pt.toString())
@@ -22,19 +22,19 @@ public class PathD : MutableList<PointD> by mutableListOf() {
         return bld.toString()
     }
 
-    public fun asArray(): Array<PointD> {
+    fun asArray(): Array<PointD> {
         return this.toTypedArray()
     }
 
     companion object {
-        public fun of(vararg elements: PointD): PathD {
+        fun of(vararg elements: PointD): PathD {
             val path = PathD()
             path.addAll(elements)
             return path
             // return mutableListOf<PointD>(*elements) as PathD
         }
 
-        public fun ofPath64(path: Path64): PathD {
+        fun ofPath64(path: Path64): PathD {
             val result = PathD() // path.size
             for (pt in path) {
                 result.add(PointD(pt))

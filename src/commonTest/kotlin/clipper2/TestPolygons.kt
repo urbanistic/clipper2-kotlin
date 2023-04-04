@@ -85,7 +85,7 @@ import kotlin.time.measureTime
 //    }
 // }
 
-public class TestPolygons {
+class TestPolygons {
     val iterations = 1
 
     @OptIn(ExperimentalTime::class)

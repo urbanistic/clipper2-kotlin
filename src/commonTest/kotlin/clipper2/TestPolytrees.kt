@@ -142,7 +142,7 @@ import kotlin.time.measureTime
 //    }
 // }
 
-public class TestPolytrees {
+class TestPolytrees {
     var pointInPolygonTotalCheckTime: Duration = Duration.ZERO
     var pointInPolygonNumChecks: Int = 0
 

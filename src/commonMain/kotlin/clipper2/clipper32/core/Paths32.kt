@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package clipper2.clipper32.core
 
 import clipper2.core.PathsD
@@ -10,9 +12,9 @@ import kotlin.js.JsName
  * complex polygons that contain one or more holes.
  */
 @JsExport
-public class Paths32 : MutableList<Path32> by mutableListOf() {
+class Paths32 : MutableList<Path32> by mutableListOf() {
 
-    public override fun toString(): String {
+    override fun toString(): String {
         val bld: StringBuilder = StringBuilder()
         for (path in this) {
             bld.append(path.toString() + "\n")
@@ -20,7 +22,7 @@ public class Paths32 : MutableList<Path32> by mutableListOf() {
         return bld.toString()
     }
 
-    public fun asArray(): Array<Path32> {
+    fun asArray(): Array<Path32> {
         return this.toTypedArray()
     }
 
@@ -39,7 +41,7 @@ public class Paths32 : MutableList<Path32> by mutableListOf() {
             return paths
         }
 
-        public fun ofPathsD(paths: PathsD): Paths32 {
+        fun ofPathsD(paths: PathsD): Paths32 {
             val result = Paths32() // path.size
             for (path in paths) {
                 result.add(Path32.ofPathD(path))

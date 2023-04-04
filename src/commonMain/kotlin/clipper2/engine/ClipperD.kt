@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package clipper2.engine
 
 import Clipper.scalePath64
@@ -24,9 +26,6 @@ class ClipperD constructor(roundingDecimalPrecision: Int = 2) : ClipperBase() {
     private val scale: Double
     private val invScale: Double
 
-    /**
-     * @param roundingDecimalPrecision default = 2
-     */
     init {
         if (roundingDecimalPrecision < -8 || roundingDecimalPrecision > 8) {
             throw IllegalArgumentException("Error - RoundingDecimalPrecision exceeds the allowed range.")

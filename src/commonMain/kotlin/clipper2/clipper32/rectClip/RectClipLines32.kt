@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package clipper2.clipper32.rectClip
 
 import Clipper.getBounds

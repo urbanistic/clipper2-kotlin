@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package clipper2.clipper32.engine
 
 import clipper2.core.PathType

@@ -10,7 +10,7 @@ import kotlin.jvm.JvmOverloads
  * to nesting. Each child's Polygon will be inside its parent's Polygon.
  */
 open class PolyPath32 @JvmOverloads constructor(parent: PolyPathBase32? = null) : PolyPathBase32(parent) {
-    public var polygon: Path32? = null
+    var polygon: Path32? = null
         private set
 
     override fun addChild(p: Path32): PolyPathBase32 {

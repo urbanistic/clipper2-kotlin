@@ -1,9 +1,7 @@
 package clipper2.clipper32.engine
 
 import clipper2.clipper32.core.Path32
-import kotlin.js.JsExport
 
-@JsExport
 abstract class PolyPathBase32(var parent: PolyPathBase32? = null) : Iterable<PolyPathBase32?> {
     var children: MutableList<PolyPathBase32> = mutableListOf()
 

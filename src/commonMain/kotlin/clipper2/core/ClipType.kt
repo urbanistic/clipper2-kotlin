@@ -32,7 +32,7 @@ import kotlin.js.JsExport
  *
  */
 @JsExport
-public enum class ClipType {
+enum class ClipType {
     None,
 
     /** Preserves regions covered by both subject and clip polygons  */

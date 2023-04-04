@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package clipper2.engine
 
 import Clipper
@@ -81,16 +83,16 @@ abstract class ClipperBase protected constructor() {
     }
 
     private class HorzSegSorter : Comparator<HorzSegment?> {
-        override fun compare(hs1: HorzSegment?, hs2: HorzSegment?): Int {
-            if (hs1 == null || hs2 == null) {
+        override fun compare(a: HorzSegment?, b: HorzSegment?): Int {
+            if (a == null || b == null) {
                 return 0
             }
-            return if (hs1.rightOp == null) {
-                if (hs2.rightOp == null) 0 else 1
-            } else if (hs2.rightOp == null) {
+            return if (a.rightOp == null) {
+                if (b.rightOp == null) 0 else 1
+            } else if (b.rightOp == null) {
                 -1
             } else {
-                hs1.leftOp!!.pt.x.compareTo(hs2.leftOp!!.pt.x) // java.lang.Long.compare(hs1.leftOp!!.pt.x, hs2.leftOp!!.pt.x)
+                a.leftOp!!.pt.x.compareTo(b.leftOp!!.pt.x) // java.lang.Long.compare(hs1.leftOp!!.pt.x, hs2.leftOp!!.pt.x)
             }
         }
     }

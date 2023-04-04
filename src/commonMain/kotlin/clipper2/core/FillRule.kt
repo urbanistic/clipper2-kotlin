@@ -26,7 +26,7 @@ import kotlin.js.JsExport
  * https://en.wikipedia.org/wiki/Nonzero-rule
  */
 @JsExport
-public enum class FillRule {
+enum class FillRule {
     /** Only odd numbered sub-regions are filled  */
     EvenOdd,
 

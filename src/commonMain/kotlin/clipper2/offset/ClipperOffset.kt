@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package clipper2.offset
 
 import Clipper
@@ -432,10 +434,10 @@ class ClipperOffset(
 //                return
 //            }
             group.pathsReversed = area < 0
-            if (group.pathsReversed) {
-                group_delta = -delta
+            group_delta = if (group.pathsReversed) {
+                -delta
             } else {
-                group_delta = delta
+                delta
             }
         } else {
             group.pathsReversed = false
@@ -480,10 +482,10 @@ class ClipperOffset(
                 group.outPaths.add(group.outPath)
             } else {
                 if (cnt == 2 && group.endType === EndType.Joined) {
-                    if (group.joinType === JoinType.Round) {
-                        endType = EndType.Round
+                    endType = if (group.joinType === JoinType.Round) {
+                        EndType.Round
                     } else {
-                        endType = EndType.Square
+                        EndType.Square
                     }
                 }
                 buildNormals(path)

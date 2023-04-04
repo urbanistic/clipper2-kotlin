@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package clipper2.clipper32.core
 
 import kotlin.js.JsExport
@@ -6,7 +8,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 @JsExport
-public class Rect32(var left: Int, var top: Int, var right: Int, var bottom: Int) {
+class Rect32(var left: Int, var top: Int, var right: Int, var bottom: Int) {
 
     init {
         if (right < left || bottom < top) {

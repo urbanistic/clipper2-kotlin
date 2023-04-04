@@ -40,7 +40,7 @@ import kotlin.time.measureTime
 //    }
 // }
 
-public class TestLines {
+class TestLines {
     val iterations = 1
 
     @OptIn(ExperimentalTime::class)

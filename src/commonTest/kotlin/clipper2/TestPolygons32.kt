@@ -9,7 +9,7 @@ import kotlin.test.assertTrue
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTime
 
-public class TestPolygons32 {
+class TestPolygons32 {
     val iterations = 1
 
     @OptIn(ExperimentalTime::class)

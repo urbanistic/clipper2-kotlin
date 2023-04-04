@@ -6,8 +6,8 @@ package tangible
 //
 // 	This class is used to replicate the ability to pass arguments by reference in Java.
 // ----------------------------------------------------------------------------------------
-public final class RefObject<T>(argValue: T?) : OutObject<T>(argValue) {
-    public fun RefObject(refArg: T?) {
+class RefObject<T>(argValue: T?) : OutObject<T>(argValue) {
+    fun RefObject(refArg: T?) {
         argValue = refArg
     }
 }

@@ -10,7 +10,7 @@ class NodeIterator32(var ppbList: List<PolyPathBase32>) : MutableIterator<PolyPa
 
     override fun next(): PolyPathBase32 {
         if (position < 0 || position >= ppbList.size) {
-            NoSuchElementException()
+            throw  NoSuchElementException()
         }
         return ppbList[position++]
     }
