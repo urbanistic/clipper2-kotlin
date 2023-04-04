@@ -4,6 +4,7 @@ import clipper2.Minkowski
 import clipper2.clipper32.core.*
 import clipper2.clipper32.engine.PolyPath32
 import clipper2.clipper32.engine.PolyTree32
+import clipper2.clipper32.rectClip.RectClip32
 import clipper2.core.*
 import clipper2.engine.Clipper64
 import clipper2.engine.ClipperD
@@ -281,6 +282,31 @@ object Clipper {
             return Paths64()
         }
         val tmp = Paths64()
+        tmp.add(path)
+        return executeRectClip(rect, tmp, convexOnly)
+    }
+
+    fun executeRectClip(
+        rect: Rect32,
+        paths: Paths32,
+        convexOnly: Boolean = false
+    ): Paths32 {
+        if (rect.isEmpty() || paths.size == 0) {
+            return Paths32()
+        }
+        val rc = RectClip32(rect)
+        return rc.execute(paths, convexOnly)
+    }
+
+    fun executeRectClip(
+        rect: Rect32,
+        path: Path32,
+        convexOnly: Boolean = false
+    ): Paths32 {
+        if (rect.isEmpty() || path.size == 0) {
+            return Paths32()
+        }
+        val tmp = Paths32()
         tmp.add(path)
         return executeRectClip(rect, tmp, convexOnly)
     }
@@ -1094,6 +1120,34 @@ object Clipper {
         }
     }
 
+    fun rdp(path: Path32, begin: Int, end: Int, epsSqrd: Double, flags: MutableList<Boolean>) {
+        var end = end
+        var idx = 0
+        var maxD = 0.0
+        while (end > begin && path[begin] == path[end]) {
+            flags[end--] = false
+        }
+        for (i in begin + 1 until end) {
+            // PerpendicDistFromLineSqrd - avoids expensive Sqrt()
+            val d = perpendicDistFromLineSqrd(path[i], path[begin], path[end])
+            if (d <= maxD) {
+                continue
+            }
+            maxD = d
+            idx = i
+        }
+        if (maxD <= epsSqrd) {
+            return
+        }
+        flags[idx] = true
+        if (idx > begin + 1) {
+            rdp(path, begin, idx, epsSqrd, flags)
+        }
+        if (idx < end - 1) {
+            rdp(path, idx, end, epsSqrd, flags)
+        }
+    }
+
     /**
      * The Ramer-Douglas-Peucker algorithm is very useful in removing path segments
      * that don't contribute meaningfully to the path's shape. The algorithm's
@@ -1146,12 +1200,76 @@ object Clipper {
      * processing (whether during file storage, or when rendering, or in subsequent
      * offsetting procedures).
      *
+     * @param path
+     * @param epsilon
+     * @return
+     */
+    fun ramerDouglasPeuckerPath(path: Path32, epsilon: Double): Path32 {
+        val len = path.size
+        if (len < 5) {
+            return path
+        }
+        val flags: MutableList<Boolean> = MutableList<Boolean>(len) { false }
+        flags[0] = true
+        flags[len - 1] = true
+        rdp(path, 0, len - 1, sqr(epsilon), flags)
+        val result = Path32() // len
+        for (i in 0 until len) {
+            if (flags[i]) {
+                result.add(path[i])
+            }
+        }
+        return result
+    }
+
+    /**
+     * The Ramer-Douglas-Peucker algorithm is very useful in removing path segments
+     * that don't contribute meaningfully to the path's shape. The algorithm's
+     * aggressiveness is determined by the epsilon parameter, with larger values
+     * removing more vertices. (Somewhat simplistically, the algorithm removes
+     * vertices that are less than epsilon distance from imaginary lines passing
+     * through their adjacent vertices.)
+     *
+     *
+     * This function can be particularly useful when offsetting paths (ie
+     * inflating/shrinking) where the offsetting process often creates tiny
+     * segments. These segments don't enhance curve quality, but they will slow path
+     * processing (whether during file storage, or when rendering, or in subsequent
+     * offsetting procedures).
+     *
      * @param paths
      * @param epsilon
      * @return
      */
     fun ramerDouglasPeucker(paths: Paths64, epsilon: Double): Paths64 {
         val result = Paths64() // paths.size
+        for (path in paths) {
+            result.add(ramerDouglasPeuckerPath(path, epsilon))
+        }
+        return result
+    }
+
+    /**
+     * The Ramer-Douglas-Peucker algorithm is very useful in removing path segments
+     * that don't contribute meaningfully to the path's shape. The algorithm's
+     * aggressiveness is determined by the epsilon parameter, with larger values
+     * removing more vertices. (Somewhat simplistically, the algorithm removes
+     * vertices that are less than epsilon distance from imaginary lines passing
+     * through their adjacent vertices.)
+     *
+     *
+     * This function can be particularly useful when offsetting paths (ie
+     * inflating/shrinking) where the offsetting process often creates tiny
+     * segments. These segments don't enhance curve quality, but they will slow path
+     * processing (whether during file storage, or when rendering, or in subsequent
+     * offsetting procedures).
+     *
+     * @param paths
+     * @param epsilon
+     * @return
+     */
+    fun ramerDouglasPeucker(paths: Paths32, epsilon: Double): Paths32 {
+        val result = Paths32() // paths.size
         for (path in paths) {
             result.add(ramerDouglasPeuckerPath(path, epsilon))
         }
@@ -1325,6 +1443,83 @@ object Clipper {
         return result
     }
 
+    fun simplifyPath(path: Path32, epsilon: Double, isOpenPath: Boolean = false): Path32 {
+        val len = path.size
+        val high = len - 1
+        val epsSqr = sqr(epsilon)
+        if (len < 4) {
+            return path
+        }
+        val flags = BooleanArray(len)
+        val dsq = DoubleArray(len)
+        var prev = high
+        var curr = 0
+        var start: Int
+        var next: Int
+        var prior2: Int
+        var next2: Int
+        if (isOpenPath) {
+            dsq[0] = Double.MAX_VALUE
+            dsq[high] = Double.MAX_VALUE
+        } else {
+            dsq[0] = perpendicDistFromLineSqrd(path[0], path[high], path[1])
+            dsq[high] = perpendicDistFromLineSqrd(path[high], path[0], path[high - 1])
+        }
+        for (i in 1 until high) {
+            dsq[i] = perpendicDistFromLineSqrd(path[i], path[i - 1], path[i + 1])
+        }
+        while (true) {
+            if (dsq[curr] > epsSqr) {
+                start = curr
+                do {
+                    curr = getNext(curr, high, /* ref */flags)
+                } while (curr != start && dsq[curr] > epsSqr)
+                if (curr == start) {
+                    break
+                }
+            }
+            prev = getPrior(curr, high, /* ref */flags)
+            next = getNext(curr, high, /* ref */flags)
+            if (next == prev) {
+                break
+            }
+            if (dsq[next] < dsq[curr]) {
+                flags[next] = true
+                next = getNext(next, high, /* ref */flags)
+                next2 = getNext(next, high, /* ref */flags)
+                dsq[curr] = perpendicDistFromLineSqrd(path[curr], path[prev], path[next])
+                if (next != high || !isOpenPath) {
+                    dsq[next] = perpendicDistFromLineSqrd(path[next], path[curr], path[next2])
+                }
+                curr = next
+            } else {
+                flags[curr] = true
+                curr = next
+                next = getNext(next, high, /* ref */flags)
+                prior2 = getPrior(prev, high, /* ref */flags)
+                dsq[curr] = perpendicDistFromLineSqrd(path[curr], path[prev], path[next])
+                if (prev != 0 || !isOpenPath) {
+                    dsq[prev] = perpendicDistFromLineSqrd(path[prev], path[prior2], path[curr])
+                }
+            }
+        }
+        val result = Path32() // len
+        for (i in 0 until len) {
+            if (!flags[i]) {
+                result.add(path[i])
+            }
+        }
+        return result
+    }
+
+    fun simplifyPaths(paths: Paths32, epsilon: Double, isOpenPath: Boolean = false): Paths32 {
+        val result = Paths32() // paths.size
+        for (path in paths) {
+            result.add(simplifyPath(path, epsilon, isOpenPath))
+        }
+        return result
+    }
+
     fun simplifyPath(path: PathD, epsilon: Double, isOpenPath: Boolean = false): PathD {
         val len = path.size
         val high = len - 1
@@ -1450,6 +1645,64 @@ object Clipper {
         } else {
             while (result.size > 2 &&
                 InternalClipper.crossProduct(result[result.size - 1], result[result.size - 2], result[0]) == 0.0
+            ) {
+                result.removeAt(result.size - 1)
+            }
+            if (result.size < 3) {
+                result.clear()
+            }
+        }
+        return result
+    }
+
+    /**
+     * This function removes the vertices between adjacent collinear segments. It
+     * will also remove duplicate vertices (adjacent vertices with identical
+     * coordinates).
+     *
+     *
+     * Note: Duplicate vertices will be removed automatically from clipping
+     * solutions, but not collinear edges unless the Clipper object's
+     * PreserveCollinear property had been disabled.
+     */
+    fun trimCollinear(path: Path32, isOpen: Boolean = false): Path32 {
+        var len = path.size
+        var i = 0
+        if (!isOpen) {
+            while (i < len - 1 && InternalClipper32.crossProduct(path[len - 1], path[i], path[i + 1]) == 0.0) {
+                i++
+            }
+            while (i < len - 1 && InternalClipper32.crossProduct(path[len - 2], path[len - 1], path[i]) == 0.0) {
+                len--
+            }
+        }
+        if (len - i < 3) {
+            return if (!isOpen || len < 2 || path[0].equals(path[1])) {
+                Path32()
+            } else {
+                path
+            }
+        }
+        val result = Path32() // len - i
+        var last = path[i]
+        result.add(last)
+        i++
+        while (i < len - 1) {
+            if (InternalClipper32.crossProduct(last, path[i], path[i + 1]) == 0.0) {
+                i++
+                continue
+            }
+            last = path[i]
+            result.add(last)
+            i++
+        }
+        if (isOpen) {
+            result.add(path[len - 1])
+        } else if (InternalClipper32.crossProduct(last, path[len - 1], result[0]) != 0.0) {
+            result.add(path[len - 1])
+        } else {
+            while (result.size > 2 &&
+                InternalClipper32.crossProduct(result[result.size - 1], result[result.size - 2], result[0]) == 0.0
             ) {
                 result.removeAt(result.size - 1)
             }
