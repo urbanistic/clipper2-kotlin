@@ -154,7 +154,7 @@ class ClipperOffset(
         _groupList.clear()
     }
 
-    fun addPath(path: Path64, joinType: JoinType?, endType: EndType?) {
+    fun addPath(path: Path64, joinType: JoinType, endType: EndType) {
         val cnt = path.size
         if (cnt == 0) {
             return
@@ -163,12 +163,12 @@ class ClipperOffset(
         addPaths(pp, joinType, endType)
     }
 
-    fun addPaths(paths: Paths64, joinType: JoinType?, endType: EndType?) {
+    fun addPaths(paths: Paths64, joinType: JoinType, endType: EndType) {
         val cnt = paths.size
         if (cnt == 0) {
             return
         }
-        _groupList.add(Group(paths, joinType!!, endType!!))
+        _groupList.add(Group(paths, joinType, endType))
     }
 
     fun executeInternal(delta: Double) {
@@ -346,7 +346,7 @@ class ClipperOffset(
             // angle less than 8 degrees or a squared join
             doSquare(group, path, j, k.argValue!!)
         else {
-            doRound(group, path, j, k.argValue!!, atan2(sinA, cosA));
+            doRound(group, path, j, k.argValue!!, atan2(sinA, cosA))
         }
 
         k.argValue = j
