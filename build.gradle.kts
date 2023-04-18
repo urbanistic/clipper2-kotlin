@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "de.urbanistic"
-version = "1.2.23"
+version = "1.2.24"
 
 repositories {
     mavenCentral()
