@@ -1366,7 +1366,11 @@ object Clipper {
         return current
     }
 
-    fun simplifyPath(path: Path64, epsilon: Double, isOpenPath: Boolean = false): Path64 {
+    fun simplifyPath(
+        path: Path64,
+        epsilon: Double,
+        isClosedPath: Boolean = false
+    ): Path64 {
         val len = path.size
         val high = len - 1
         val epsSqr = sqr(epsilon)
@@ -1381,13 +1385,16 @@ object Clipper {
         var next: Int
         var prior2: Int
         var next2: Int
-        if (isOpenPath) {
-            dsq[0] = Double.MAX_VALUE
-            dsq[high] = Double.MAX_VALUE
-        } else {
+
+        if (isClosedPath) {
             dsq[0] = perpendicDistFromLineSqrd(path[0], path[high], path[1])
             dsq[high] = perpendicDistFromLineSqrd(path[high], path[0], path[high - 1])
         }
+        else {
+            dsq[0] = Double.MAX_VALUE
+            dsq[high] = Double.MAX_VALUE
+        }
+
         for (i in 1 until high) {
             dsq[i] = perpendicDistFromLineSqrd(path[i], path[i - 1], path[i + 1])
         }
@@ -1411,7 +1418,7 @@ object Clipper {
                 next = getNext(next, high, /* ref */flags)
                 next2 = getNext(next, high, /* ref */flags)
                 dsq[curr] = perpendicDistFromLineSqrd(path[curr], path[prev], path[next])
-                if (next != high || !isOpenPath) {
+                if (next != high || isClosedPath) {
                     dsq[next] = perpendicDistFromLineSqrd(path[next], path[curr], path[next2])
                 }
                 curr = next
@@ -1421,7 +1428,7 @@ object Clipper {
                 next = getNext(next, high, /* ref */flags)
                 prior2 = getPrior(prev, high, /* ref */flags)
                 dsq[curr] = perpendicDistFromLineSqrd(path[curr], path[prev], path[next])
-                if (prev != 0 || !isOpenPath) {
+                if (prev != 0 || isClosedPath) {
                     dsq[prev] = perpendicDistFromLineSqrd(path[prev], path[prior2], path[curr])
                 }
             }
@@ -1435,10 +1442,14 @@ object Clipper {
         return result
     }
 
-    fun simplifyPaths(paths: Paths64, epsilon: Double, isOpenPath: Boolean = false): Paths64 {
+    fun simplifyPaths(
+        paths: Paths64,
+        epsilon: Double,
+        isClosedPath: Boolean = false
+    ): Paths64 {
         val result = Paths64() // paths.size
         for (path in paths) {
-            result.add(simplifyPath(path, epsilon, isOpenPath))
+            result.add(simplifyPath(path, epsilon, isClosedPath))
         }
         return result
     }
@@ -1830,5 +1841,57 @@ object Clipper {
             dx = x
         }
         return result
+    }
+
+    private fun showPolyPathStructure(pp: PolyPath64, level: Int)
+    {
+        val spaces: String = " ".repeat(level * 2)
+        val caption: String = if(pp.isHole) "Hole " else "Outer "
+
+        if (pp.count == 0)
+        {
+            println(spaces + caption)
+        }
+        else
+        {
+            println(spaces + caption + "({${pp.count}})")
+            for (child in pp) {
+                showPolyPathStructure(child as PolyPath64, level + 1);
+            }
+        }
+    }
+
+    private fun showPolyTreeStructure(polytree: PolyTree64)
+    {
+        println("Polytree Root")
+        for(child in polytree) {
+            showPolyPathStructure(child as PolyPath64, 1);
+        }
+    }
+
+    private fun showPolyPathStructure(pp : PolyPathD, level: Int)
+    {
+        val spaces: String = " ".repeat(level * 2)
+        val caption: String = if(pp.isHole) "Hole " else "Outer "
+
+        if (pp.count == 0)
+        {
+            println(spaces + caption)
+        }
+        else
+        {
+            println(spaces + caption + "({${pp.count}})")
+            for (child in pp) {
+                showPolyPathStructure(child as PolyPathD, level + 1);
+            }
+        }
+    }
+
+    public fun showPolyTreeStructure(polytree: PolyTreeD)
+    {
+        println("Polytree Root")
+        for(child in polytree) {
+            showPolyPathStructure(child as PolyPathD, 1);
+        }
     }
 }

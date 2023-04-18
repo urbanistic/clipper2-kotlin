@@ -321,31 +321,34 @@ class ClipperOffset(
         } else if (sinA < -1.0) {
             sinA = -1.0
         }
-        if (cosA > 0.99) { // almost straight - less than 8 degrees
-            group.outPath.add(getPerpendic(path[j], normals[k.argValue!!]))
-            if (cosA < 0.9998) { // greater than 1 degree (#424)
-                group.outPath.add(getPerpendic(path[j], normals[j])) // (#418)
-            }
-        } else if (cosA > -0.99 && (sinA * group_delta < 0)) { // is concave
+
+        if (cosA > -0.99 && (sinA * group_delta < 0)) {
+            // is concave
             group.outPath.add(getPerpendic(path[j], normals[k.argValue!!]))
             // this extra point is the only (simple) way to ensure that
             // path reversals are fully cleaned with the trailing clipper
             group.outPath.add(path[j]) // (#405)
             group.outPath.add(getPerpendic(path[j], normals[j]))
-        } else if (joinType === JoinType.Round) {
-            doRound(group, path, j, k.argValue!!, atan2(sinA, cosA))
-        } else if (joinType === JoinType.Miter) {
+        }
+        else if (joinType === JoinType.Miter) {
             // miter unless the angle is so acute the miter would exceeds ML
             if (cosA > mitLimSqr - 1) {
                 doMiter(group, path, j, k.argValue!!, cosA)
             } else {
                 doSquare(group, path, j, k.argValue!!)
             }
-        } else if (cosA > 0.9) {
-            doMiter(group, path, j, k.argValue!!, cosA)
-        } else {
-            doSquare(group, path, j, k.argValue!!)
         }
+        else if (cosA > 0.9998) {
+            // almost straight - less than 1 degree (#424)
+            doMiter(group, path, j, k.argValue!!, cosA)
+        }
+        else if (cosA > 0.99 || joinType == JoinType.Square)
+            // angle less than 8 degrees or a squared join
+            doSquare(group, path, j, k.argValue!!)
+        else {
+            doRound(group, path, j, k.argValue!!, atan2(sinA, cosA));
+        }
+
         k.argValue = j
     }
 
