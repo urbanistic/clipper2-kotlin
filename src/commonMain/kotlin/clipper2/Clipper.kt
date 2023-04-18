@@ -961,12 +961,12 @@ object Clipper {
         var lastPt = path[0]
         result.add(lastPt)
         for (i in 1 until cnt) {
-            if (!path[i].equals(lastPt)) {
+            if (path[i] != lastPt) {
                 lastPt = path[i]
                 result.add(lastPt)
             }
         }
-        if (isClosedPath && result[0].equals(lastPt)) {
+        if (isClosedPath && result[0] == lastPt) {
             result.removeAt(result.size - 1)
         }
         return result
@@ -981,12 +981,12 @@ object Clipper {
         var lastPt = path[0]
         result.add(lastPt)
         for (i in 1 until cnt) {
-            if (!path[i].equals(lastPt)) {
+            if (path[i] != lastPt) {
                 lastPt = path[i]
                 result.add(lastPt)
             }
         }
-        if (isClosedPath && result[0].equals(lastPt)) {
+        if (isClosedPath && result[0] == lastPt) {
             result.removeAt(result.size - 1)
         }
         return result
@@ -1630,7 +1630,7 @@ object Clipper {
             }
         }
         if (len - i < 3) {
-            return if (!isOpen || len < 2 || path[0].equals(path[1])) {
+            return if (!isOpen || len < 2 || path[0] == path[1]) {
                 Path64()
             } else {
                 path
@@ -1688,7 +1688,7 @@ object Clipper {
             }
         }
         if (len - i < 3) {
-            return if (!isOpen || len < 2 || path[0].equals(path[1])) {
+            return if (!isOpen || len < 2 || path[0] == path[1]) {
                 Path32()
             } else {
                 path
