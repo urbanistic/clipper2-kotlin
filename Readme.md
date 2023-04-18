@@ -1,8 +1,13 @@
 # Clipper2KotlinMP
-A Kotlin Multiplatform (jvm, js, native) port of
+A Kotlin Multiplatform (jvm, js, native), based on
 _[Clipper2-java](https://github.com/micycle1/Clipper2-java)_,
-a java port of
+a java v1.1.0 of
 _[Clipper2](https://github.com/AngusJohnson/Clipper2)_.
+
+Later updated are following the C# changes of _[Clipper2](https://github.com/AngusJohnson/Clipper2)_
+
+Added Clipper32 because Int performance is much better (1,5x - 10x) (with Kotlin) in JS
+
 
 ## Usage
 todo
