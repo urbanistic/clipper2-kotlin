@@ -750,19 +750,33 @@ object Clipper {
      * returns a reversed copy of the Path
      */
     fun reversePath(path: Path64): Path64 {
-        return path.reversed() as Path64
+        val pathCopy = Path64.copy(path)
+        pathCopy.reverse()
+        return pathCopy
     }
 
     fun reversePath(path: Path32): Path32 {
-        return path.reversed() as Path32
+        val pathCopy = Path32.copy(path)
+        pathCopy.reverse()
+        return pathCopy
     }
 
     fun reversePath(path: PathD): PathD {
-        return path.reversed() as PathD
+        val pathCopy = PathD.copy(path)
+        pathCopy.reverse()
+        return pathCopy
     }
 
     fun reversePaths(paths: Paths64): Paths64 {
         val result = Paths64() // paths.size
+        for (t in paths) {
+            result.add(reversePath(t))
+        }
+        return result
+    }
+
+    fun reversePaths(paths: Paths32): Paths32 {
+        val result = Paths32() // paths.size
         for (t in paths) {
             result.add(reversePath(t))
         }

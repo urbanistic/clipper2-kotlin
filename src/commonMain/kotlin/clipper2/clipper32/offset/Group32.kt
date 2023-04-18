@@ -19,7 +19,7 @@ internal class Group32 @JvmOverloads constructor(
     var pathsReversed: Boolean
 
     init {
-        inPaths = Paths32.of(paths) // paths
+        inPaths = Paths32.copy(paths) // paths
         this.joinType = joinType
         this.endType = endType
         outPath = Path32()

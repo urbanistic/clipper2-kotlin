@@ -30,11 +30,15 @@ class Path64 : MutableList<Point64> by mutableListOf() {
     }
 
     companion object {
+        fun copy(p: Path64): Path64 {
+            val path = Path64()
+            path.addAll(p)
+            return path
+        }
         fun of(vararg elements: Point64): Path64 {
             val path = Path64()
             path.addAll(elements)
             return path
-            // return mutableListOf<Point64>(*elements) as Path64
         }
         fun ofPathD(path: PathD): Path64 {
             val result = Path64() // path.size

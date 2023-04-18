@@ -31,11 +31,15 @@ class Path32 : MutableList<Point32> by mutableListOf() {
     }
 
     companion object {
+        fun copy(p: Path32): Path32 {
+            val path = Path32()
+            path.addAll(p)
+            return path
+        }
         fun of(vararg elements: Point32): Path32 {
             val path = Path32()
             path.addAll(elements)
             return path
-            // return mutableListOf<Point32>(*elements) as Path32
         }
         fun ofPathD(path: PathD): Path32 {
             val result = Path32() // path.size

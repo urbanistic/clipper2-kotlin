@@ -29,6 +29,12 @@ class PathD : MutableList<PointD> by mutableListOf() {
     }
 
     companion object {
+        fun copy(p: PathD): PathD {
+            val path = PathD()
+            path.addAll(p)
+            return path
+        }
+
         fun of(vararg elements: PointD): PathD {
             val path = PathD()
             path.addAll(elements)

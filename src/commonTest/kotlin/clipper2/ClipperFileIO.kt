@@ -37,9 +37,9 @@ object ClipperFileIO {
                             area,
                             count,
                             GetIdx,
-                            Paths64.of(subj),
-                            Paths64.of(subj_open),
-                            Paths64.of(clip),
+                            Paths64.copy(subj),
+                            Paths64.copy(subj_open),
+                            Paths64.copy(clip),
                             cases.size + 1
                         )
                     )
@@ -154,9 +154,9 @@ object ClipperFileIO {
                             area,
                             count,
                             GetIdx,
-                            Paths32.of(subj),
-                            Paths32.of(subj_open),
-                            Paths32.of(clip),
+                            Paths32.copy(subj),
+                            Paths32.copy(subj_open),
+                            Paths32.copy(clip),
                             cases.size + 1
                         )
                     )

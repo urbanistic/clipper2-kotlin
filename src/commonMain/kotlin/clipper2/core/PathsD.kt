@@ -22,8 +22,7 @@ class PathsD : MutableList<PathD> by mutableListOf() {
     }
 
     companion object {
-        @JsName("ofPathsD")
-        fun of(elements: PathsD): PathsD {
+        fun copy(elements: PathsD): PathsD {
             val paths = PathsD()
             paths.addAll(elements)
             return paths

@@ -26,8 +26,7 @@ class Paths64 : MutableList<Path64> by mutableListOf() {
     }
 
     companion object {
-        @JsName("ofPaths64")
-        fun of(elements: Paths64): Paths64 {
+        fun copy(elements: Paths64): Paths64 {
             val paths = Paths64()
             paths.addAll(elements)
             return paths

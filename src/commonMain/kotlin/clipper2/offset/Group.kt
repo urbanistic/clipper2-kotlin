@@ -17,7 +17,7 @@ internal class Group @JvmOverloads constructor(
     var pathsReversed: Boolean
 
     init {
-        inPaths = Paths64.of(paths) // paths
+        inPaths = Paths64.copy(paths) // paths
         this.joinType = joinType
         this.endType = endType
         outPath = Path64()
