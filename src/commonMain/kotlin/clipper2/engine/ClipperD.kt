@@ -108,8 +108,10 @@ class ClipperD constructor(roundingDecimalPrecision: Int = 2) : ClipperBase() {
         openPaths: PathsD = PathsD()
     ): Boolean {
         polytree.clear()
-        polytree.scale = scale
         openPaths.clear()
+        usingPolytree = true
+        polytree.scale = scale
+
         val oPaths = Paths64()
         var success = true
         try {
