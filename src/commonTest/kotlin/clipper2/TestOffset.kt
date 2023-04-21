@@ -7,6 +7,7 @@ import clipper2.offset.EndType
 import clipper2.offset.JoinType
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTime
@@ -273,5 +274,30 @@ class TestOffset {
         assertEquals(1, outputs.size)
         // when offsetting, output orientation should match input
         assertTrue { Clipper.isPositive(input) == Clipper.isPositive(outputs[0]) }
+    }
+
+    @Test
+    fun testOffsetIssue() { // #496
+        val co = ClipperOffset()
+
+        val sourcePath = Clipper.makePath(
+            longArrayOf(
+                -360, -100,
+                120, 260,
+                300, 140,
+                -340, 160
+            )
+        )
+
+        co.miterLimit = 2.0
+        co.arcTolerance = 0.25
+
+        co.addPath(sourcePath, JoinType.Miter, EndType.Square)
+
+        val resizedPolyData = Paths64()
+        co.execute(50.0, resizedPolyData)
+
+        assertTrue(Clipper.isPositive(resizedPolyData[0]))
+        assertFalse(Clipper.isPositive(resizedPolyData[1]))
     }
 }
