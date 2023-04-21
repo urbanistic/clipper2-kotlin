@@ -648,7 +648,7 @@ object Clipper {
         return result
     }
 
-    private fun scalePaths(paths: Paths64, scale: Double): Paths64 {
+    fun scalePaths(paths: Paths64, scale: Double): Paths64 {
         if (InternalClipper.isAlmostZero(scale - 1)) {
             return paths
         }
@@ -938,8 +938,41 @@ object Clipper {
         return p
     }
 
+
     fun sqr(value: Double): Double {
         return value * value
+    }
+
+    fun sqr(value: Long): Long {
+        return value * value
+    }
+
+    fun sqr(value: Int): Int {
+        return value * value
+    }
+
+    fun distanceSqr(pt1: Point64, pt2: Point64): Long {
+        return sqr(pt1.x - pt2.x) + sqr(pt1.y - pt2.y)
+    }
+
+    fun distanceSqr(pt1: Point32, pt2: Point32): Int {
+        return sqr(pt1.x - pt2.x) + sqr(pt1.y - pt2.y)
+    }
+
+    fun distanceSqr(pt1: PointD, pt2: PointD): Double {
+        return sqr(pt1.x - pt2.x) + sqr(pt1.y - pt2.y)
+    }
+
+    fun distance(pt1: Point64, pt2: Point64): Double {
+        return sqrt(distanceSqr(pt1, pt2).toDouble())
+    }
+
+    fun distance(pt1: Point32, pt2: Point32): Double {
+        return sqrt(distanceSqr(pt1, pt2).toDouble())
+    }
+
+    fun distance(pt1: PointD, pt2: PointD): Double {
+        return sqrt(distanceSqr(pt1, pt2))
     }
 
     fun pointsNearEqual(pt1: PointD, pt2: PointD, distanceSqrd: Double): Boolean {
@@ -1403,8 +1436,7 @@ object Clipper {
         if (isClosedPath) {
             dsq[0] = perpendicDistFromLineSqrd(path[0], path[high], path[1])
             dsq[high] = perpendicDistFromLineSqrd(path[high], path[0], path[high - 1])
-        }
-        else {
+        } else {
             dsq[0] = Double.MAX_VALUE
             dsq[high] = Double.MAX_VALUE
         }
@@ -1857,17 +1889,13 @@ object Clipper {
         return result
     }
 
-    private fun showPolyPathStructure(pp: PolyPath64, level: Int)
-    {
+    private fun showPolyPathStructure(pp: PolyPath64, level: Int) {
         val spaces: String = " ".repeat(level * 2)
-        val caption: String = if(pp.isHole) "Hole " else "Outer "
+        val caption: String = if (pp.isHole) "Hole " else "Outer "
 
-        if (pp.count == 0)
-        {
+        if (pp.count == 0) {
             println(spaces + caption)
-        }
-        else
-        {
+        } else {
             println(spaces + caption + "({${pp.count}})")
             for (child in pp) {
                 showPolyPathStructure(child as PolyPath64, level + 1);
@@ -1875,25 +1903,20 @@ object Clipper {
         }
     }
 
-    private fun showPolyTreeStructure(polytree: PolyTree64)
-    {
+    private fun showPolyTreeStructure(polytree: PolyTree64) {
         println("Polytree Root")
-        for(child in polytree) {
+        for (child in polytree) {
             showPolyPathStructure(child as PolyPath64, 1);
         }
     }
 
-    private fun showPolyPathStructure(pp : PolyPathD, level: Int)
-    {
+    private fun showPolyPathStructure(pp: PolyPathD, level: Int) {
         val spaces: String = " ".repeat(level * 2)
-        val caption: String = if(pp.isHole) "Hole " else "Outer "
+        val caption: String = if (pp.isHole) "Hole " else "Outer "
 
-        if (pp.count == 0)
-        {
+        if (pp.count == 0) {
             println(spaces + caption)
-        }
-        else
-        {
+        } else {
             println(spaces + caption + "({${pp.count}})")
             for (child in pp) {
                 showPolyPathStructure(child as PolyPathD, level + 1);
@@ -1901,10 +1924,9 @@ object Clipper {
         }
     }
 
-    public fun showPolyTreeStructure(polytree: PolyTreeD)
-    {
+    public fun showPolyTreeStructure(polytree: PolyTreeD) {
         println("Polytree Root")
-        for(child in polytree) {
+        for (child in polytree) {
             showPolyPathStructure(child as PolyPathD, 1);
         }
     }
