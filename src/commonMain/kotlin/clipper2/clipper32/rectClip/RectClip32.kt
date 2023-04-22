@@ -278,23 +278,23 @@ open class RectClip32(rect: Rect32) {
             // we must be crossing the rect boundary to get here
             // //////////////////////////////////////////////////
             if (loc.argValue == Location.INSIDE) // path must be entering rect
-                {
-                    if (firstCross == Location.INSIDE) {
-                        firstCross = crossingLoc.argValue!!
-                        startLocs.add(prev.argValue)
-                    } else if (prev.argValue != crossingLoc.argValue) {
-                        val isClockw = isClockwise(
-                            prev.argValue,
-                            crossingLoc.argValue,
-                            prevPt,
-                            path[i.argValue!!],
-                            mp
-                        )
-                        do {
-                            addCorner(prev, isClockw)
-                        } while (prev.argValue != crossingLoc.argValue)
-                    }
-                } else if (prev.argValue != Location.INSIDE) {
+            {
+                if (firstCross == Location.INSIDE) {
+                    firstCross = crossingLoc.argValue!!
+                    startLocs.add(prev.argValue)
+                } else if (prev.argValue != crossingLoc.argValue) {
+                    val isClockw = isClockwise(
+                        prev.argValue,
+                        crossingLoc.argValue,
+                        prevPt,
+                        path[i.argValue!!],
+                        mp
+                    )
+                    do {
+                        addCorner(prev, isClockw)
+                    } while (prev.argValue != crossingLoc.argValue)
+                }
+            } else if (prev.argValue != Location.INSIDE) {
                 // passing right through rect. 'ip' here will be the second
                 // intersect pt but we'll also need the first intersect pt (ip2)
                 loc.argValue = prev.argValue
@@ -317,12 +317,12 @@ open class RectClip32(rect: Rect32) {
                     continue
                 }
             } else // path must be exiting rect
-                {
-                    loc.argValue = crossingLoc.argValue
-                    if (firstCross == Location.INSIDE) {
-                        firstCross = crossingLoc.argValue!!
-                    }
+            {
+                loc.argValue = crossingLoc.argValue
+                if (firstCross == Location.INSIDE) {
+                    firstCross = crossingLoc.argValue!!
                 }
+            }
             add(ip)
         } // while i <= highI
         // /////////////////////////////////////////////////
@@ -466,22 +466,23 @@ open class RectClip32(rect: Rect32) {
         var op2: OutPt2?
         while (i < cw.size) {
             p1 = cw[i]
-            if (p1 != null) {
-                if (p1.next === p1.prev) {
-                    cw[i++]!!.edge = null
-                    j = 0
-                    continue
-                }
+            if (p1 == null || p1.next === p1.prev) {
+                cw[i++] = null
+                j = 0
+                continue
             }
+
             val jLim = ccw.size
             while (j < jLim && (ccw[j] == null || ccw[j]!!.next === ccw[j]!!.prev)) {
                 ++j
             }
+
             if (j == jLim) {
                 ++i
                 j = 0
                 continue
             }
+
             if (cwIsTowardLarger) {
                 // p1 >>>> p1a;
                 // p2 <<<< p2a;
@@ -497,6 +498,7 @@ open class RectClip32(rect: Rect32) {
                 p2 = ccw[j]!!.prev
                 p2a = ccw[j]
             }
+
             if (isHorz && !hasHorzOverlap(p1!!.pt, p1a!!.pt, p2!!.pt, p2a!!.pt) || !isHorz && !hasVertOverlap(
                     p1!!.pt,
                     p1a!!.pt,
@@ -531,11 +533,13 @@ open class RectClip32(rect: Rect32) {
                 p1a!!.next = p2a
                 p2a!!.prev = p1a
             }
+
             if (!isRejoining) {
                 val new_idx = results.size
                 results.add(p1a)
                 setNewOwner(p1a, new_idx)
             }
+
             if (cwIsTowardLarger) {
                 op = p2
                 op2 = p1a
@@ -543,21 +547,24 @@ open class RectClip32(rect: Rect32) {
                 op = p1
                 op2 = p2a
             }
+
             results[op.ownerIdx] = op
             results[op2.ownerIdx] = op2
 
             // and now lots of work to get ready for the next loop
             var opIsLarger: Boolean
             var op2IsLarger: Boolean
+
             if (isHorz) // X
-                {
-                    opIsLarger = op.pt.x > op.prev!!.pt.x
-                    op2IsLarger = op2.pt.x > op2.prev!!.pt.x
-                } else // Y
-                {
-                    opIsLarger = op.pt.y > op.prev!!.pt.y
-                    op2IsLarger = op2.pt.y > op2.prev!!.pt.y
-                }
+            {
+                opIsLarger = op.pt.x > op.prev!!.pt.x
+                op2IsLarger = op2.pt.x > op2.prev!!.pt.x
+            } else // Y
+            {
+                opIsLarger = op.pt.y > op.prev!!.pt.y
+                op2IsLarger = op2.pt.y > op2.prev!!.pt.y
+            }
+
             if (op.next === op.prev || op.pt === op.prev!!.pt) {
                 if (op2IsLarger == cwIsTowardLarger) {
                     cw[i] = op2

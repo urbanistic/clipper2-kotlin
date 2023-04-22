@@ -80,16 +80,16 @@ abstract class ClipperBase32 protected constructor() {
     }
 
     private class HorzSegSorter : Comparator<HorzSegment?> {
-        override fun compare(hs1: HorzSegment?, hs2: HorzSegment?): Int {
-            if (hs1 == null || hs2 == null) {
+        override fun compare(a: HorzSegment?, b: HorzSegment?): Int {
+            if (a == null || b == null) {
                 return 0
             }
-            return if (hs1.rightOp == null) {
-                if (hs2.rightOp == null) 0 else 1
-            } else if (hs2.rightOp == null) {
+            return if (a.rightOp == null) {
+                if (b.rightOp == null) 0 else 1
+            } else if (b.rightOp == null) {
                 -1
             } else {
-                hs1.leftOp!!.pt.x.compareTo(hs2.leftOp!!.pt.x) // java.lang.Int.compare(hs1.leftOp!!.pt.x, hs2.leftOp!!.pt.x)
+                a.leftOp!!.pt.x.compareTo(b.leftOp!!.pt.x) // java.lang.Int.compare(hs1.leftOp!!.pt.x, hs2.leftOp!!.pt.x)
             }
         }
     }
@@ -708,7 +708,7 @@ abstract class ClipperBase32 protected constructor() {
                 if (contributing) {
                     addLocalMinPoly(leftBound, rightBound, leftBound.bot, true)
                     if (!isHorizontal(leftBound)) {
-                        checkJoinLeft(leftBound, leftBound.bot)
+                        checkJoinLeft(leftBound, leftBound.bot!!)
                     }
                 }
 
@@ -720,7 +720,7 @@ abstract class ClipperBase32 protected constructor() {
                 if (isHorizontal(rightBound)) {
                     pushHorz(rightBound)
                 } else {
-                    checkJoinRight(rightBound, rightBound.bot)
+                    checkJoinRight(rightBound, rightBound.bot!!)
                     scanlineSet.addIfMissingAndSort(rightBound.top!!.y)
                 }
             } else if (contributing) {
@@ -874,8 +874,8 @@ abstract class ClipperBase32 protected constructor() {
             return
         }
         scanlineSet.addIfMissingAndSort(ae.top!!.y)
-        checkJoinLeft(ae, ae.bot)
-        checkJoinRight(ae, ae.bot)
+        checkJoinLeft(ae, ae.bot!!)
+        checkJoinRight(ae, ae.bot!!)
     }
 
     private fun intersectEdges(ae1: Active, ae2: Active, pt: Point32): OutPt? {
@@ -1606,11 +1606,18 @@ abstract class ClipperBase32 protected constructor() {
         }
     }
 
-    private fun checkJoinLeft(e: Active?, pt: Point32?, checkCurrX: Boolean = false) {
+    private fun checkJoinLeft(e: Active?, pt: Point32, checkCurrX: Boolean = false) {
         val prev: Active? = e!!.prevInAEL
-        if (prev == null || isOpen(e) || isOpen(prev) || !isHotEdge(e) || !isHotEdge(prev) || pt!!.y < e.top!!.y + 2 || pt.y < prev.top!!.y + 2) {
+
+        if (prev == null || isOpen(e) || isOpen(prev) || !isHotEdge(e) || !isHotEdge(prev)){
             return
         }
+
+        if ((pt.y < e.top!!.y + 2 || pt.y < prev.top!!.y + 2) &&  // avoid trivial joins
+            ((e.bot!!.y > pt.y) || (prev.bot!!.y > pt.y))) {
+            return // (#490)
+        }
+
         if (checkCurrX) {
             if (perpendicDistFromLineSqrd(pt, prev.bot!!, prev.top!!) > 0.25) {
                 return
@@ -1618,9 +1625,11 @@ abstract class ClipperBase32 protected constructor() {
         } else if (e.curX != prev.curX) {
             return
         }
+
         if (crossProduct(e.top!!, pt, prev.top!!) != 0.0) {
             return
         }
+
         if (e.outrec!!.idx == prev.outrec!!.idx) {
             addLocalMaxPoly(prev, e, pt)
         } else if (e.outrec!!.idx < prev.outrec!!.idx) {
@@ -1628,15 +1637,23 @@ abstract class ClipperBase32 protected constructor() {
         } else {
             joinOutrecPaths(prev, e)
         }
+
         prev.joinWith = JoinWith.Right
         e.joinWith = JoinWith.Left
     }
 
-    private fun checkJoinRight(e: Active?, pt: Point32?, checkCurrX: Boolean = false) {
+    private fun checkJoinRight(e: Active?, pt: Point32, checkCurrX: Boolean = false) {
         val next: Active? = e!!.nextInAEL
-        if (isOpen(e) || !isHotEdge(e) || isJoined(e) || next == null || isOpen(next) || !isHotEdge(next) || pt!!.y < e.top!!.y + 2 || pt.y < next.top!!.y + 2) {
+
+        if (isOpen(e) || !isHotEdge(e) || isJoined(e) || next == null || isOpen(next) || !isHotEdge(next)){
             return
         }
+
+        if ((pt.y < e.top!!.y + 2 || pt.y < next.top!!.y + 2) &&  // avoid trivial joins
+            ((e.bot!!.y > pt.y) || (next.bot!!.y > pt.y))){
+            return // (#490)
+        }
+
         if (checkCurrX) {
             if (perpendicDistFromLineSqrd(pt, next.bot!!, next.top!!) > 0.25) {
                 return
@@ -1644,9 +1661,11 @@ abstract class ClipperBase32 protected constructor() {
         } else if (e.curX != next.curX) {
             return
         }
+
         if (crossProduct(e.top!!, pt, next.top!!) != 0.0) {
             return
         }
+
         if (e.outrec!!.idx == next.outrec!!.idx) {
             addLocalMaxPoly(e, next, pt)
         } else if (e.outrec!!.idx < next.outrec!!.idx) {
@@ -1654,6 +1673,7 @@ abstract class ClipperBase32 protected constructor() {
         } else {
             joinOutrecPaths(next, e)
         }
+
         e.joinWith = JoinWith.Right
         next.joinWith = JoinWith.Left
     }
@@ -1740,6 +1760,10 @@ abstract class ClipperBase32 protected constructor() {
                     } else if (path1InsidePath2(or1.pts!!, or2.pts!!)) {
                         setOwner(or1, or2)
                     } else {
+                        if(or1.splits == null){
+                            or1.splits = mutableListOf()
+                        }
+                        or1.splits!!.add(or2.idx) // (#498)
                         or2.owner = or1
                     }
                 } else {
@@ -1923,53 +1947,51 @@ abstract class ClipperBase32 protected constructor() {
         return true
     }
 
+
+    private fun checkSplitOwner(outrec: OutRec): Boolean
+    {
+        for (i in outrec.owner!!.splits!!)
+        {
+            val split: OutRec? = getRealOutRec(outrecList[i])
+            if (split != null && split != outrec &&
+                split != outrec.owner && checkBounds(split) &&
+                split.bounds.contains(outrec.bounds) &&
+                path1InsidePath2(outrec.pts!!, split.pts!!)
+            )
+            {
+                outrec.owner = split //found in split
+                return true
+            }
+        }
+        return false
+    }
+
     private fun recursiveCheckOwners(outrec: OutRec?, polypath: PolyPathBase32) {
         // pre-condition: outrec will have valid bounds
         // post-condition: if a valid path, outrec will have a polypath
         if (outrec!!.polypath != null || outrec.bounds.isEmpty()) {
             return
         }
-        while (outrec.owner != null && (outrec.owner!!.pts == null || !checkBounds(outrec.owner))) {
-            outrec.owner = outrec.owner!!.owner
-        }
-        if (outrec.owner != null && outrec.owner!!.polypath == null) {
-            recursiveCheckOwners(outrec.owner, polypath)
-        }
-        while (outrec.owner != null) {
-            if (outrec.owner!!.bounds.contains(outrec.bounds) && path1InsidePath2(outrec.pts!!, outrec.owner!!.pts!!)) {
-                break // found - owner contain outrec!
-            } else {
-                outrec.owner = outrec.owner!!.owner
-            }
-        }
-        if (outrec.owner != null) {
-            outrec.polypath = outrec.owner!!.polypath!!.addChild(outrec.path)
-        } else {
-            outrec.polypath = polypath.addChild(outrec.path)
-        }
-    }
 
-    private fun deepCheckOwners(outrec: OutRec, polypath: PolyPathBase32) {
-        recursiveCheckOwners(outrec, polypath)
-        while (outrec.owner != null && outrec.owner!!.splits != null) {
-            var split: OutRec? = null
-            for (i in outrec.owner!!.splits!!) {
-                split = getRealOutRec(outrecList[i])
-                if (split != null && split !== outrec && split !== outrec.owner && checkBounds(split) && split.bounds.contains(
-                        outrec.bounds
-                    ) &&
-                    path1InsidePath2(outrec.pts!!, split.pts!!)
-                ) {
-                    recursiveCheckOwners(split, polypath)
-                    outrec.owner = split // found in split
-                    break // inner 'for' loop
-                } else {
-                    split = null
-                }
-            }
-            if (split == null) {
+        while (outrec.owner != null) {
+            if (outrec.owner!!.splits != null && checkSplitOwner(outrec)){
                 break
             }
+            if (outrec.owner!!.pts != null && checkBounds(outrec.owner) &&
+                path1InsidePath2(outrec.pts!!, outrec.owner!!.pts!!)
+            ){
+                break
+            }
+            outrec.owner = outrec.owner!!.owner
+        }
+
+        if (outrec.owner != null) {
+            if (outrec.owner!!.polypath == null)
+                recursiveCheckOwners(outrec.owner, polypath)
+            outrec.polypath = outrec.owner!!.polypath!!.addChild(outrec.path)
+        }
+        else {
+            outrec.polypath = polypath.addChild(outrec.path)
         }
     }
 
@@ -1993,7 +2015,7 @@ abstract class ClipperBase32 protected constructor() {
                 continue
             }
             if (checkBounds(outrec)) {
-                deepCheckOwners(outrec, polytree)
+                recursiveCheckOwners(outrec, polytree)
             }
         }
     }

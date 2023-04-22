@@ -91,7 +91,7 @@ class TestOffset {
 
         subject = Clipper.scalePaths(subject, scale)
 
-        val co: ClipperOffset = ClipperOffset()
+        val co = ClipperOffset()
         co.addPaths(subject, JoinType.Round, EndType.Polygon)
         co.arcTolerance = arc_tol
         co.execute(delta, solution)
@@ -299,5 +299,32 @@ class TestOffset {
 
         assertTrue(Clipper.isPositive(resizedPolyData[0]))
         assertFalse(Clipper.isPositive(resizedPolyData[1]))
+    }
+
+    @Test
+    fun testOffsetIssue2() { // #496
+        val co = ClipperOffset()
+
+        val sourcePath = Clipper.makePath(
+            longArrayOf(
+                (-360 * 10000.0).toLong(), (-100 * 10000.0).toLong(),
+                (120 * 10000.0).toLong(), (260 * 10000.0).toLong(),
+                (300 * 10000.0).toLong(), (140 * 10000.0).toLong(),
+                (-340 * 10000.0).toLong(), (160 * 10000.0).toLong()
+            )
+        )
+
+        co.miterLimit = 2.0
+        co.arcTolerance = 0.25
+
+        co.addPath(sourcePath, JoinType.Miter, EndType.Square)
+
+        val resizedPolyData = Paths64()
+        co.execute(50.0 * 10000.0, resizedPolyData)
+
+        val result = Clipper.scalePathsD(resizedPolyData, 1 / 10000.0)
+
+        assertTrue(Clipper.isPositive(result[0]))
+        assertFalse(Clipper.isPositive(result[1]))
     }
 }
