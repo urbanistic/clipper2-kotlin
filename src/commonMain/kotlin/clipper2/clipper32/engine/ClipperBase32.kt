@@ -875,7 +875,7 @@ abstract class ClipperBase32 protected constructor() {
         }
         scanlineSet.addIfMissingAndSort(ae.top!!.y)
         checkJoinLeft(ae, ae.bot!!)
-        checkJoinRight(ae, ae.bot!!)
+        checkJoinRight(ae, ae.bot!!, true)
     }
 
     private fun intersectEdges(ae1: Active, ae2: Active, pt: Point32): OutPt? {
