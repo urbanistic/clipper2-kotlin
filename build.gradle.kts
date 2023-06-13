@@ -2,13 +2,13 @@ import java.util.*
 
 plugins {
     id("maven-publish")
-    kotlin("multiplatform") version "1.8.21"
+    kotlin("multiplatform") version "1.8.22"
     id("org.jlleitschuh.gradle.ktlint") version "11.3.2"
 //    id("io.kotest.multiplatform") version "5.5.5"
 }
 
 group = "de.urbanistic"
-version = "1.2.28"
+version = "1.2.29"
 
 repositories {
     mavenCentral()

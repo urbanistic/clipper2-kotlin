@@ -48,6 +48,105 @@ abstract class ClipperBase protected constructor() {
     var usingPolytree = false
     var succeeded = false
 
+    class ClipperEngine{
+        companion object{
+            private fun addLocMin(vert: Vertex?, polytype: PathType, isOpen: Boolean, minimaList: MutableList<LocalMinima>) {
+                // make sure the vertex is added only once ...
+                if (vert!!.flags and VertexFlags.LocalMin != VertexFlags.None) {
+                    return
+                }
+                vert.flags = vert.flags or VertexFlags.LocalMin
+                val lm = LocalMinima(vert, polytype, isOpen)
+                minimaList.add(lm)
+            }
+
+            fun addPathsToVertexList(paths: Paths64, polytype: PathType, isOpen: Boolean, minimaList: MutableList<LocalMinima>, vertexList: MutableList<Vertex?>) {
+                for (path in paths) {
+                    var v0: Vertex? = null
+                    var prevV: Vertex? = null
+                    var currV: Vertex?
+                    for (pt in path) {
+                        if (v0 == null) {
+                            v0 = Vertex(pt, VertexFlags.None, null)
+                            vertexList.add(v0)
+                            prevV = v0
+                        } else if (prevV!!.pt.opNotEquals(pt)) { // ie skips duplicates
+                            currV = Vertex(pt, VertexFlags.None, prevV)
+                            vertexList.add(currV)
+                            prevV.next = currV
+                            prevV = currV
+                        }
+                    }
+                    if (prevV?.prev == null) {
+                        continue
+                    }
+                    if (!isOpen && v0!!.pt.opEquals(prevV.pt)) {
+                        prevV = prevV.prev
+                    }
+                    prevV!!.next = v0
+                    v0!!.prev = prevV
+                    if (!isOpen && prevV === prevV.next) {
+                        continue
+                    }
+
+                    // OK, we have a valid path
+                    var goingup: Boolean
+                    var goingup0: Boolean
+                    if (isOpen) {
+                        currV = v0.next
+                        while (v0 !== currV && currV!!.pt.y == v0.pt.y) {
+                            currV = currV.next
+                        }
+                        goingup = currV.pt.y <= v0.pt.y
+                        if (goingup) {
+                            v0.flags = VertexFlags.OpenStart
+                            addLocMin(v0, polytype, true, minimaList)
+                        } else {
+                            v0.flags = VertexFlags.OpenStart or VertexFlags.LocalMax
+                        }
+                    } else { // closed path
+                        prevV = v0.prev
+                        while (v0 != prevV && prevV!!.pt.y == v0.pt.y) {
+                            prevV = prevV.prev
+                        }
+                        if (v0 == prevV) {
+                            continue // only open paths can be completely flat
+                        }
+                        goingup = prevV.pt.y > v0.pt.y
+                    }
+                    goingup0 = goingup
+                    prevV = v0
+                    currV = v0.next
+                    while (v0 != currV) {
+                        if (currV!!.pt.y > prevV!!.pt.y && goingup) {
+                            prevV.flags = prevV.flags or VertexFlags.LocalMax
+                            goingup = false
+                        } else if (currV.pt.y < prevV.pt.y && !goingup) {
+                            goingup = true
+                            addLocMin(prevV, polytype, isOpen, minimaList)
+                        }
+                        prevV = currV
+                        currV = currV.next
+                    }
+                    if (isOpen) {
+                        prevV!!.flags = prevV.flags or VertexFlags.OpenEnd
+                        if (goingup) {
+                            prevV.flags = prevV.flags or VertexFlags.LocalMax
+                        } else {
+                            addLocMin(prevV, polytype, isOpen, minimaList)
+                        }
+                    } else if (goingup != goingup0) {
+                        if (goingup0) {
+                            addLocMin(prevV, polytype, false, minimaList)
+                        } else {
+                            prevV!!.flags = prevV.flags or VertexFlags.LocalMax
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * When adjacent edges are collinear in closed path solutions, the common vertex
      * can safely be removed to simplify the solution without altering path shape.
@@ -179,7 +278,7 @@ abstract class ClipperBase protected constructor() {
      * ascending and descending 'bounds' (or sides) that start at local minima and
      * ascend to a local maxima, before descending again.
      */
-    inner class Vertex(pt: Point64, flags: Int, prev: Vertex?) {
+    class Vertex(pt: Point64, flags: Int, prev: Vertex?) {
         var pt = Point64()
 
         var next: Vertex?
@@ -283,91 +382,6 @@ abstract class ClipperBase protected constructor() {
         minimaList.add(lm)
     }
 
-    protected fun addPathsToVertexList(paths: Paths64, polytype: PathType, isOpen: Boolean) {
-        for (path in paths) {
-            var v0: Vertex? = null
-            var prevV: Vertex? = null
-            var currV: Vertex?
-            for (pt in path) {
-                if (v0 == null) {
-                    v0 = Vertex(pt, VertexFlags.None, null)
-                    vertexList.add(v0)
-                    prevV = v0
-                } else if (prevV!!.pt.opNotEquals(pt)) { // ie skips duplicates
-                    currV = Vertex(pt, VertexFlags.None, prevV)
-                    vertexList.add(currV)
-                    prevV.next = currV
-                    prevV = currV
-                }
-            }
-            if (prevV?.prev == null) {
-                continue
-            }
-            if (!isOpen && v0!!.pt.opEquals(prevV.pt)) {
-                prevV = prevV.prev
-            }
-            prevV!!.next = v0
-            v0!!.prev = prevV
-            if (!isOpen && prevV === prevV.next) {
-                continue
-            }
-
-            // OK, we have a valid path
-            var goingup: Boolean
-            var goingup0: Boolean
-            if (isOpen) {
-                currV = v0.next
-                while (v0 !== currV && currV!!.pt.y == v0.pt.y) {
-                    currV = currV.next
-                }
-                goingup = currV.pt.y <= v0.pt.y
-                if (goingup) {
-                    v0.flags = VertexFlags.OpenStart
-                    addLocMin(v0, polytype, true)
-                } else {
-                    v0.flags = VertexFlags.OpenStart or VertexFlags.LocalMax
-                }
-            } else { // closed path
-                prevV = v0.prev
-                while (v0 != prevV && prevV!!.pt.y == v0.pt.y) {
-                    prevV = prevV.prev
-                }
-                if (v0 == prevV) {
-                    continue // only open paths can be completely flat
-                }
-                goingup = prevV.pt.y > v0.pt.y
-            }
-            goingup0 = goingup
-            prevV = v0
-            currV = v0.next
-            while (v0 != currV) {
-                if (currV!!.pt.y > prevV!!.pt.y && goingup) {
-                    prevV.flags = prevV.flags or VertexFlags.LocalMax
-                    goingup = false
-                } else if (currV.pt.y < prevV.pt.y && !goingup) {
-                    goingup = true
-                    addLocMin(prevV, polytype, isOpen)
-                }
-                prevV = currV
-                currV = currV.next
-            }
-            if (isOpen) {
-                prevV!!.flags = prevV.flags or VertexFlags.OpenEnd
-                if (goingup) {
-                    prevV.flags = prevV.flags or VertexFlags.LocalMax
-                } else {
-                    addLocMin(prevV, polytype, isOpen)
-                }
-            } else if (goingup != goingup0) {
-                if (goingup0) {
-                    addLocMin(prevV, polytype, false)
-                } else {
-                    prevV!!.flags = prevV.flags or VertexFlags.LocalMax
-                }
-            }
-        }
-    }
-
     fun addSubject(path: Path64) {
         addPath(path, PathType.Subject)
     }
@@ -412,7 +426,21 @@ abstract class ClipperBase protected constructor() {
             hasOpenPaths = true
         }
         isSortedMinimaList = false
-        addPathsToVertexList(paths, polytype, isOpen)
+        ClipperEngine.addPathsToVertexList(paths, polytype, isOpen, minimaList, vertexList)
+    }
+
+    fun addReuseableData(reuseableData: ReuseableDataContainer64)
+    {
+        if (reuseableData.minimaList.isEmpty()) return
+        // nb: reuseableData will continue to own the vertices, so it's important
+        // that the reuseableData object isn't destroyed before the Clipper object
+        // that's using the data.
+        isSortedMinimaList = false
+        for (lm in reuseableData.minimaList)
+        {
+            minimaList.add(LocalMinima(lm.vertex, lm.polytype, lm.isOpen))
+            if (lm.isOpen) hasOpenPaths = true
+        }
     }
 
     private fun isContributingClosed(ae: Active?): Boolean {
@@ -2172,7 +2200,7 @@ abstract class ClipperBase protected constructor() {
         }
 
         private fun getCurrYMaximaVertex_Open(ae: Active): Vertex? {
-            var result: ClipperBase.Vertex? = ae.vertexTop
+            var result: Vertex? = ae.vertexTop
             if (ae.windDx > 0) {
                 while (result!!.next!!.pt.y == result.pt.y && result.flags and (VertexFlags.OpenEnd or VertexFlags.LocalMax) == VertexFlags.None) {
                     result = result.next
