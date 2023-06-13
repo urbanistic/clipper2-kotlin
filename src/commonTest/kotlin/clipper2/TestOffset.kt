@@ -218,7 +218,7 @@ class TestOffset {
         )
         solution = Clipper.inflatePaths(paths, -5000.0, JoinType.Square, EndType.Polygon)
         // std::cout << solution[0].size() << std::endl;
-        assertEquals(6, solution[0].size)
+        assertEquals(5, solution[0].size)
 
         paths = Paths64.of(
             Clipper.makePath(
@@ -234,7 +234,7 @@ class TestOffset {
         )
         solution = Clipper.inflatePaths(paths, -5000.0, JoinType.Round, EndType.Polygon)
         // std::cout << solution[0].size() << std::endl;
-        assertEquals(6, solution[0].size)
+        assertEquals(5, solution[0].size)
 
         paths = Paths64.of(
             Clipper.makePath(

@@ -1772,13 +1772,15 @@ abstract class ClipperBase protected constructor() {
         for (j in _horzJoinList) {
             val or1 = getRealOutRec(j.op1.outrec)
             var or2 = getRealOutRec(j.op2.outrec)
+
             val op1b = j.op1.next
             val op2b = j.op2.prev
             j.op1.next = j.op2
             j.op2.prev = j.op1
             op1b.prev = op2b
             op2b!!.next = op1b
-            if (or1 === or2) {
+
+            if (or1 == or2) {
                 or2 = OutRec()
                 or2.pts = op1b
                 fixOutRecPts(or2)
@@ -1786,22 +1788,22 @@ abstract class ClipperBase protected constructor() {
                     or1!!.pts = j.op1
                     or1.pts!!.outrec = or1
                 }
+
                 if (usingPolytree) {
                     if (path1InsidePath2(or2.pts!!, or1!!.pts!!)) {
                         setOwner(or2, or1)
+                        if(or1.splits == null){ or1.splits = mutableListOf() }
+                        or1.splits!!.add(or2.idx) // (#520)
                     } else if (path1InsidePath2(or1.pts!!, or2.pts!!)) {
                         setOwner(or1, or2)
                     } else {
-                        if(or1.splits == null){
-                            or1.splits = mutableListOf()
-                        }
+                        if(or1.splits == null){ or1.splits = mutableListOf() }
                         or1.splits!!.add(or2.idx) // (#498)
                         or2.owner = or1
                     }
                 } else {
                     or2.owner = or1
                 }
-                outrecList.add(or2)
             } else {
                 or2!!.pts = null
                 if (usingPolytree) {
@@ -1979,15 +1981,15 @@ abstract class ClipperBase protected constructor() {
         return true
     }
 
-    private fun checkSplitOwner(outrec: OutRec): Boolean
+    private fun checkSplitOwner(outrec: OutRec, splits: List<Int>): Boolean
     {
-        for (i in outrec.owner!!.splits!!)
+        for (i in splits)
         {
-            val split: OutRec? = getRealOutRec(outrecList[i])
-            if (split != null && split != outrec &&
-                split != outrec.owner && checkBounds(split) &&
-                split.bounds.contains(outrec.bounds) &&
-                path1InsidePath2(outrec.pts!!, split.pts!!))
+            val split: OutRec = outrecList[i]
+
+            if (split == outrec || split == outrec.owner) continue
+            else if (split.splits != null && checkSplitOwner(outrec, split.splits!!)) return true
+            else if(checkBounds(split) && split.bounds.contains(outrec.bounds) && path1InsidePath2(outrec.pts!!, split.pts!!))
             {
                 outrec.owner = split //found in split
                 return true
@@ -1996,27 +1998,21 @@ abstract class ClipperBase protected constructor() {
         return false
     }
 
-    private fun recursiveCheckOwners(outrec: OutRec?, polypath: PolyPathBase) {
+    private fun recursiveCheckOwners(outrec: OutRec, polypath: PolyPathBase) {
         // pre-condition: outrec will have valid bounds
         // post-condition: if a valid path, outrec will have a polypath
-        if (outrec!!.polypath != null || outrec.bounds.isEmpty()) {
-            return
-        }
+        if (outrec.polypath != null || outrec.bounds.isEmpty()) { return }
 
         while (outrec.owner != null) {
-            if (outrec.owner!!.splits != null && checkSplitOwner(outrec)){
-                break
-            }
-            if (outrec.owner!!.pts != null && checkBounds(outrec.owner) &&
-                    path1InsidePath2(outrec.pts!!, outrec.owner!!.pts!!)){
-                break
-            }
+            if (outrec.owner!!.splits != null && checkSplitOwner(outrec, outrec.owner!!.splits!!)){ break }
+            else if (outrec.owner!!.pts != null && checkBounds(outrec.owner) && outrec.owner!!.bounds.contains(outrec.bounds) && path1InsidePath2(outrec.pts!!, outrec.owner!!.pts!!)){ break }
+
             outrec.owner = outrec.owner!!.owner
         }
 
         if (outrec.owner != null) {
             if (outrec.owner!!.polypath == null)
-                recursiveCheckOwners(outrec.owner, polypath)
+                recursiveCheckOwners(outrec.owner!!, polypath)
             outrec.polypath = outrec.owner!!.polypath!!.addChild(outrec.path)
         }
         else {

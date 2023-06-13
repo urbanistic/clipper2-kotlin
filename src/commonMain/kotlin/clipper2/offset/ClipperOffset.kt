@@ -7,33 +7,19 @@ import Clipper.area
 import Clipper.reversePath
 import Clipper.sqr
 import Clipper.stripDuplicates
-import clipper2.core.ClipType
-import clipper2.core.FillRule
+import clipper2.core.*
 import clipper2.core.InternalClipper.DEFAULT_ARC_TOLERANCE
 import clipper2.core.InternalClipper.crossProduct
 import clipper2.core.InternalClipper.dotProduct
 import clipper2.core.InternalClipper.isAlmostZero
-import clipper2.core.Path64
-import clipper2.core.PathD
-import clipper2.core.Paths64
-import clipper2.core.Point64
-import clipper2.core.PointD
-import clipper2.core.Rect64
 import clipper2.engine.Clipper64
 import clipper2.engine.PolyTree64
 import tangible.OutObject
 import tangible.RefObject
 import kotlin.js.JsExport
 import kotlin.js.JsName
-import kotlin.math.PI
-import kotlin.math.abs
-import kotlin.math.acos
-import kotlin.math.atan2
-import kotlin.math.ceil
-import kotlin.math.cos
-import kotlin.math.log10
-import kotlin.math.sin
-import kotlin.math.sqrt
+import kotlin.math.*
+
 
 /**
  * Geometric offsetting refers to the process of creating parallel curves that
@@ -62,12 +48,12 @@ class ClipperOffset(
     preserveCollinear: Boolean = false,
     reverseSolution: Boolean = false
 ) {
-    private val _groupList: MutableList<Group> = mutableListOf<Group>()
+    private val tolerance = 1.0E-12
+    private val _groupList: MutableList<Group> = mutableListOf()
     private val normals = PathD()
     private val _solution = Paths64()
-    private var group_delta = 0.0 // *0.5 for open paths; *-1.0 for negative areas
+    private var groupDelta = 0.0 // *0.5 for open paths; *-1.0 for negative areas
     private var delta = 0.0
-    private var abs_group_delta = 0.0
     private var mitLimSqr = 0.0
     private var stepsPerRad = 0.0
     private var _stepSin = 0.0
@@ -79,6 +65,9 @@ class ClipperOffset(
     var miterLimit = 0.0
     var preserveCollinear = false
     var reverseSolution = false
+
+    var deltaCallback64: ((Path64, PathD, Int, Int) -> Double)? = null
+
     /**
      * Creates a ClipperOffset object, using the supplied parameters.
      *
@@ -192,6 +181,13 @@ class ClipperOffset(
         }
     }
 
+    @JsName("executeWithDeltaCallback")
+    fun execute(deltaCallback: ((Path64, PathD, Int, Int) -> Double)?, solution: Paths64) {
+        this.deltaCallback64 = deltaCallback
+        execute(1.0, solution)
+        this.deltaCallback64 = null
+    }
+
     fun execute(delta: Double, solution: Paths64) {
         solution.clear()
         executeInternal(delta)
@@ -228,11 +224,11 @@ class ClipperOffset(
     }
 
     private fun getPerpendic(pt: Point64, norm: PointD): Point64 {
-        return Point64(pt.x + norm.x * group_delta, pt.y + norm.y * group_delta)
+        return Point64(pt.x + norm.x * groupDelta, pt.y + norm.y * groupDelta)
     }
 
     private fun getPerpendicD(pt: Point64, norm: PointD): PointD {
-        return PointD(pt.x + norm.x * group_delta, pt.y + norm.y * group_delta)
+        return PointD(pt.x + norm.x * groupDelta, pt.y + norm.y * groupDelta)
     }
 
     private fun doSquare(group: Group, path: Path64, j: Int, k: Int) {
@@ -243,17 +239,18 @@ class ClipperOffset(
             getAvgUnitVector(PointD(-normals[k].y, normals[k].x), PointD(normals[j].y, -normals[j].x))
         }
 
+        val absDelta: Double = abs(groupDelta)
         // now offset the original vertex delta units along unit vector
         var ptQ = PointD(path[j])
-        ptQ = translatePoint(ptQ, abs_group_delta * vec.x, abs_group_delta * vec.y)
+        ptQ = translatePoint(ptQ, absDelta * vec.x, absDelta * vec.y)
 
         // get perpendicular vertices
-        val pt1 = translatePoint(ptQ, group_delta * vec.y, group_delta * -vec.x)
-        val pt2 = translatePoint(ptQ, group_delta * -vec.y, group_delta * vec.x)
+        val pt1 = translatePoint(ptQ, groupDelta * vec.y, groupDelta * -vec.x)
+        val pt2 = translatePoint(ptQ, groupDelta * -vec.y, groupDelta * vec.x)
         // get 2 vertices along one edge offset
         val pt3 = getPerpendicD(path[k], normals[k])
         if (j == k) {
-            val pt4 = PointD(pt3.x + vec.x * group_delta, pt3.y + vec.y * group_delta)
+            val pt4 = PointD(pt3.x + vec.x * groupDelta, pt3.y + vec.y * groupDelta)
             val pt = intersectPoint(pt1, pt2, pt3, pt4)
             // get the second intersect point through reflecion
             group.outPath.add(Point64(reflectPoint(pt, ptQ)))
@@ -268,7 +265,7 @@ class ClipperOffset(
     }
 
     private fun doMiter(group: Group, path: Path64, j: Int, k: Int, cosA: Double) {
-        val q = group_delta / (cosA + 1)
+        val q = groupDelta / (cosA + 1)
         group.outPath.add(
             Point64(
                 path[j].x + (normals[k].x + normals[j].x) * q,
@@ -278,8 +275,21 @@ class ClipperOffset(
     }
 
     private fun doRound(group: Group, path: Path64, j: Int, k: Int, angle: Double) {
+        if (this.deltaCallback64 != null) {
+            // when DeltaCallback is assigned, _groupDelta won't be constant,
+            // so we'll need to do the following calculations for *every* vertex.
+            val absDelta: Double = abs(groupDelta)
+            val arcTol: Double =
+                if (arcTolerance > 0.01) arcTolerance else log10(2 + absDelta) * InternalClipper.DEFAULT_ARC_TOLERANCE
+            val stepsPer360: Double = PI / acos(1 - arcTol / absDelta)
+            _stepSin = sin(2 * PI / stepsPer360)
+            _stepCos = cos(2 * PI / stepsPer360)
+            if (groupDelta < 0.0) _stepSin = -_stepSin
+            stepsPerRad = stepsPer360 / (2 * PI)
+        }
+
         val pt = path[j]
-        var offsetVec = PointD(normals[k].x * group_delta, normals[k].y * group_delta)
+        var offsetVec = PointD(normals[k].x * groupDelta, normals[k].y * groupDelta)
         if (j == k) {
             offsetVec.negate()
         }
@@ -316,14 +326,22 @@ class ClipperOffset(
         // cos(A) < 0: change in angle is more than 90 degree
         var sinA = crossProduct(normals[j], normals[k.argValue!!])
         val cosA = dotProduct(normals[j], normals[k.argValue!!])
-        if (sinA > 1.0) {
-            sinA = 1.0
-        } else if (sinA < -1.0) {
-            sinA = -1.0
+        if (sinA > 1.0) { sinA = 1.0 }
+        else if (sinA < -1.0) { sinA = -1.0 }
+
+        if (this.deltaCallback64 != null) {
+            groupDelta = this.deltaCallback64!!(path, normals, j, k.argValue!!)
+        }
+        if (abs(groupDelta) < tolerance)
+        {
+            group.outPath.add(path[j])
+            return
         }
 
-        if (cosA > -0.99 && (sinA * group_delta < 0)) {
-            // is concave
+        if (cosA > 0.99) {
+            doMiter(group, path, j, k.argValue!!, cosA)
+        } else if (cosA > -0.99 && (sinA * groupDelta < 0)) {
+        // is concave
             group.outPath.add(getPerpendic(path[j], normals[k.argValue!!]))
             // this extra point is the only (simple) way to ensure that
             // path reversals are fully cleaned with the trailing clipper
@@ -338,11 +356,7 @@ class ClipperOffset(
                 doSquare(group, path, j, k.argValue!!)
             }
         }
-        else if (cosA > 0.9998) {
-            // almost straight - less than 1 degree (#424)
-            doMiter(group, path, j, k.argValue!!, cosA)
-        }
-        else if (cosA > 0.99 || joinType == JoinType.Square)
+        else if (joinType == JoinType.Square)
             // angle less than 8 degrees or a squared join
             doSquare(group, path, j, k.argValue!!)
         else {
@@ -373,19 +387,27 @@ class ClipperOffset(
     private fun offsetOpenPath(group: Group, path: Path64) {
         group.outPath = Path64()
         val highI = path.size - 1
-        when (endType) {
-            EndType.Butt -> {
-                group.outPath.add(
-                    Point64(
-                        path[0].x - normals[0].x * group_delta,
-                        path[0].y - normals[0].y * group_delta
-                    )
-                )
-                group.outPath.add(getPerpendic(path[0], normals[0]))
-            }
 
-            EndType.Round -> doRound(group, path, 0, 0, PI)
-            else -> doSquare(group, path, 0, 0)
+        if (deltaCallback64 != null)
+            groupDelta = this.deltaCallback64!!(path, normals, 0, 0);
+
+        if (abs(groupDelta) < tolerance) {
+            group.outPath.add(path[0])
+        } else {
+            when (endType) {
+                EndType.Butt -> {
+                    group.outPath.add(
+                        Point64(
+                            path[0].x - normals[0].x * groupDelta,
+                            path[0].y - normals[0].y * groupDelta
+                        )
+                    )
+                    group.outPath.add(getPerpendic(path[0], normals[0]))
+                }
+
+                EndType.Round -> doRound(group, path, 0, 0, PI)
+                else -> doSquare(group, path, 0, 0)
+            }
         }
 
         // offset the left side going forward
@@ -399,19 +421,28 @@ class ClipperOffset(
             normals[i] = PointD(-normals[i - 1].x, -normals[i - 1].y)
         }
         normals[0] = normals[highI]
-        when (endType) {
-            EndType.Butt -> {
-                group.outPath.add(
-                    Point64(
-                        path[highI].x - normals[highI].x * group_delta,
-                        path[highI].y - normals[highI].y * group_delta
-                    )
-                )
-                group.outPath.add(getPerpendic(path[highI], normals[highI]))
-            }
 
-            EndType.Round -> doRound(group, path, highI, highI, PI)
-            else -> doSquare(group, path, highI, highI)
+        if (this.deltaCallback64 != null)
+            groupDelta = this.deltaCallback64!!(path, normals, highI, highI)
+
+        // do the line end cap
+        if (abs(groupDelta) < tolerance) {
+            group.outPath.add(path[highI])
+        } else {
+            when (endType) {
+                EndType.Butt -> {
+                    group.outPath.add(
+                        Point64(
+                            path[highI].x - normals[highI].x * groupDelta,
+                            path[highI].y - normals[highI].y * groupDelta
+                        )
+                    )
+                    group.outPath.add(getPerpendic(path[highI], normals[highI]))
+                }
+
+                EndType.Round -> doRound(group, path, highI, highI, PI)
+                else -> doSquare(group, path, highI, highI)
+            }
         }
 
         // offset the left side going back
@@ -437,31 +468,35 @@ class ClipperOffset(
 //                return
 //            }
             group.pathsReversed = area < 0
-            group_delta = if (group.pathsReversed) {
+            groupDelta = if (group.pathsReversed) {
                 -delta
             } else {
                 delta
             }
         } else {
             group.pathsReversed = false
-            group_delta = abs(delta) * 0.5
+            groupDelta = abs(delta) * 0.5
         }
-        abs_group_delta = abs(group_delta)
+
+        val absDelta = abs(groupDelta)
         joinType = group.joinType
         endType = group.endType
 
-        // calculate a sensible number of steps (for 360 deg for the given offset
-        if (group.joinType === JoinType.Round || group.endType === EndType.Round) {
+
+        if (this.deltaCallback64 == null &&
+            (group.joinType == JoinType.Round || group.endType == EndType.Round))
+        {
+            // calculate a sensible number of steps (for 360 deg for the given offset
             // arcTol - when fArcTolerance is undefined (0), the amount of
             // curve imprecision that's allowed is based on the size of the
             // offset (delta). Obviously very large offsets will almost always
             // require much less precision. See also offset_triginometry2.svg
-            val arcTol = if (arcTolerance > 0.01) arcTolerance else log10(2 + abs_group_delta) * DEFAULT_ARC_TOLERANCE
+            val arcTol = if (arcTolerance > 0.01) arcTolerance else log10(2 + absDelta) * DEFAULT_ARC_TOLERANCE
             // stepsPerRad = 0.5 / acos(1 - arcTol / abs_group_delta)
-            val stepsPer360: Double = PI / acos(1 - arcTol / abs_group_delta)
+            val stepsPer360: Double = PI / acos(1 - arcTol / absDelta)
             _stepSin = sin(2 * PI / stepsPer360)
             _stepCos = cos(2 * PI / stepsPer360)
-            if (group_delta < 0.0) _stepSin = -_stepSin
+            if (groupDelta < 0.0) _stepSin = -_stepSin
             stepsPerRad = stepsPer360 / (2 * PI)
         }
         val isJoined = group.endType === EndType.Joined || group.endType === EndType.Polygon
@@ -475,10 +510,10 @@ class ClipperOffset(
                 group.outPath = Path64()
                 // single vertex so build a circle or square ...
                 if (group.endType === EndType.Round) {
-                    val r = abs_group_delta
+                    val r = absDelta
                     group.outPath = Clipper.ellipse(path[0], r, r)
                 } else {
-                    val d: Int = ceil(group_delta).toInt()
+                    val d: Int = ceil(groupDelta).toInt()
                     val r = Rect64(path[0].x - d, path[0].y - d, path[0].x - d, path[0].y - d)
                     group.outPath = r.asPath()
                 }
